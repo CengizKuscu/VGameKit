@@ -1,0 +1,19 @@
+{
+    "name": "VGameKit.Runtime",
+    "rootNamespace": "VGameKit.Runtime",
+    "references": [
+        "VContainer",
+        "UniTask",
+        "MessagePipe.VContainer",
+        "MessagePipe"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
