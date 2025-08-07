@@ -4,8 +4,8 @@
   "author": {
     "name": "Cengiz KUSCU"
   },
-  "version": "0.0.1",
-  "unity": "6000.0.54",
+  "version": "0.0.2",
+  "unity": "6000.0",
   "description": "VGameKit is a Expansion Package for VContainer that provides additional features and utilities for game development in Unity.",
   "keywords": [
     "vcontainer", "async/await", "game development", "unity", "dependency injection", "gamekit", "expansion"
