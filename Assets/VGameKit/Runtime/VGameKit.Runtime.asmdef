@@ -5,12 +5,13 @@
         "VContainer",
         "UniTask",
         "MessagePipe.VContainer",
-        "MessagePipe"
+        "MessagePipe",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
+    "overrideReferences": true,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
