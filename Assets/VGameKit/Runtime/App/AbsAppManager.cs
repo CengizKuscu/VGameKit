@@ -31,6 +31,7 @@ namespace VGameKit.Runtime.App
         public override void Subscriptions()
         {
             _appReadySubscriber.Subscribe(OnAppReady).AddTo(_bagBuilder);
+            
         }
         
         /// <summary>

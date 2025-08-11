@@ -1,0 +1,18 @@
+{
+  "name": "com.cngz.vgamekit.io",
+  "displayName": "VGameKit.IO",
+  "author": {
+    "name": "Cengiz KUSCU"
+  },
+  "version": "0.0.3",
+  "unity": "6000.0",
+  "description": "Newtonsoft.Json support for VGameKit, providing JSON serialization and deserialization capabilities.",
+  "keywords": [
+    "serialization",
+    "deserialization",
+    "json"
+  ],
+  "license": "MIT",
+  "dependencies": {
+  }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "VGameKit.GoogleAds.Editor",
+    "rootNamespace": "",
+    "references": [
+        "VGameKit.GoogleAds.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

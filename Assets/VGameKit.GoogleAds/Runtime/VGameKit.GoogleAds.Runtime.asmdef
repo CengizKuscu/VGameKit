@@ -1,24 +1,30 @@
 {
-    "name": "VGameKit.Runtime",
+    "name": "VGameKit.GoogleAds.Runtime",
+    "rootNamespace": "",
     "references": [
         "VContainer",
         "UniTask",
-        "MessagePipe.VContainer",
         "MessagePipe",
-        "Unity.Mathematics"
+        "GameAnalyticsSDK"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "GoogleMobileAds.dll",
+        "GoogleMobileAds.Unity.dll",
+        "GoogleMobileAds.Core.dll",
+        "GoogleMobileAds.Common.dll",
+        "GoogleMobileAds.Ump.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [
         {
             "name": "com.gameanalytics.sdk",
             "expression": "",
-            "define": "VGameKIT_GA"
+            "define": "GA_ENABLED"
         }
     ],
     "noEngineReferences": false
