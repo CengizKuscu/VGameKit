@@ -4,7 +4,7 @@
   "author": {
     "name": "Cengiz KUSCU"
   },
-  "version": "0.0.3",
+  "version": "0.0.4",
   "unity": "6000.0",
   "description": "Google Ads support for VGameKit, providing integration with Google Ads services.",
   "keywords": [

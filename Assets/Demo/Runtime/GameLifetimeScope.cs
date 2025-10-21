@@ -11,17 +11,22 @@ namespace Demo.Runtime
     {
         [SerializeField] private DemoSpawnItem _demoSpawnItemPrefab;
         [SerializeField] private Transform _demoSpawnItemParent;
+        
+        [SerializeField] private DemoPopupBuilder _demoPopupBuilder;
 
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
 
             builder.RegisterComponent(_demoSpawnItemParent);
+            builder.RegisterComponent(_demoPopupBuilder);
             
             builder.Register<GameAppManager>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.RegisterObjectSpawner<DemoSpawnItemModel, Transform, DemoSpawnItem>(_demoSpawnItemPrefab,
                 Lifetime.Singleton, true);
+            
+            
         }
     }
 }

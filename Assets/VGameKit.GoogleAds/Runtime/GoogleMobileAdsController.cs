@@ -131,14 +131,14 @@ namespace VGameKit.GoogleAds.Runtime
                 case AdsType.Interstitial:
                     if (_useInterstitial)
                     {
-                        _interstitialAds.ShowAd(e);
+                        _interstitialAds?.ShowAd(e);
                     }
 
                     break;
                 case AdsType.Rewarded:
                     if (_useRewarded)
                     {
-                        _rewardedAds.ShowAd(e);
+                        _rewardedAds?.ShowAd(e);
                     }
 
                     break;

@@ -17,6 +17,8 @@ namespace Demo.Runtime
 
         [Inject] private readonly Transform _demoParent;
         
+        [Inject] private readonly DemoPopupBuilder _demoPopupBuilder;
+        
         private DemoSpawnItemPool _demoSpawnItemPool;
 
         public override void Init()
@@ -39,6 +41,19 @@ namespace Demo.Runtime
 
         private async UniTaskVoid SpawnItemAsync()
         {
+            _demoPopupBuilder.AddPopup(PopupNames.Popup1, new DemoPopupModel1
+                {
+                    OnClose = name =>
+                    {
+                        GKLog.Log(LogState.Development, $"Closed Popup: {name}");
+                    }
+                })
+                .AddPopup(PopupNames.Popup2, new DemoPopupModel2())
+                .OnCompleteFlow(() =>
+                {
+                    GKLog.Log(LogState.Game, "All popups completed.");
+                }).OpenPopup();
+            
             await UniTask.Delay(2000); // Simulate some delay before spawning items
             var length = 10;
             
@@ -54,6 +69,8 @@ namespace Demo.Runtime
             }
             
             _demoSpawnItemPool.Dispose();
+
+            
         }
 
         public override void Dispose()
