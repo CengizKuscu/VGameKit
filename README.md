@@ -23,9 +23,9 @@ The core module of the framework, VGameKit offers a wide range of essential func
 
 ### VGameKit.GA
 
-This module integrates Google Analytics into your project, allowing you to track player behavior and game events.
+This module integrates GameAnalytics into your project, allowing you to track player behavior and game events.
 
-- **GA_Initialization**: A simple script to initialize the Google Analytics SDK.
+- **GA_Initialization**: A simple script to initialize the GameAnalytics SDK.
 
 ```js
 "com.cngz.vgamekit.ga": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GA#v0.0.4"
