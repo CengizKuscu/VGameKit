@@ -205,19 +205,25 @@ namespace VGameKit.Runtime.Spawner
         /// <exception cref="InvalidCastException">Thrown if the item is not of the expected type.</exception>
         public override void ReleaseItem(ISpawnItem spawnItem)
         {
-            if (spawnItem is not TItem item)
+            if (spawnItem == null)
+                throw new ArgumentNullException(nameof(spawnItem));
+        
+            var item = spawnItem as TItem;
+            if (item == null)
                 throw new InvalidCastException("Spawn item is not of the expected type.");
-
-            if (_inactiveItems.Contains(item))
-                return; // already in pool, double release checked
-
+        
             item.gameObject.SetActive(false);
+        
             if (_poolTarget != null)
             {
                 item.transform.SetParent(_poolTarget);
             }
-
-            _inactiveItems.Enqueue(item);
+        
+            if (!_inactiveItems.Contains(item))
+            {
+                _inactiveItems.Enqueue(item);
+            }
+        
             _activeItems.Remove(item);
         }
 
