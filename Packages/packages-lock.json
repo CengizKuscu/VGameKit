@@ -230,6 +230,13 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "jillejr.newtonsoft.json-for-unity": {
+      "version": "13.0.102",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "jp.hadashikick.vcontainer": {
       "version": "1.17.0",
       "depth": 0,
