@@ -1,12 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "mcpServers": {
-    "unity-api": {
-      "command": "uvx",
-      "args": ["unity-api-mcp"],
-      "env": {
-        "UNITY_PROJECT_PATH": "/Volumes/Work/Personal/Projects/VGameKit"
-      }
-    }
-  }
+  
 }

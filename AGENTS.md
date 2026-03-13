@@ -4,8 +4,8 @@ This playbook keeps autonomous agents aligned when working inside `/Volumes/Work
 
 ## Project Snapshot
 1. **Engine**: Unity 6000.3.7f1 (`ProjectSettings/ProjectVersion.txt`).
-2. **Languages**: C# 9 assemblies targeting `netstandard2.1` via asmdefs under `Assets/VGameKit*`.
-3. **Key deps**: VContainer (DI), MessagePipe (pub/sub), UniTask (async), Cysharp GameAnalytics & Google Ads bridges.
+2. **Languages**: C# 9 assemblies targeting `v4.7.1` (Unity Mono) via asmdefs under `Assets/VGameKit*`.
+3. **Key deps**: VContainer 1.17.0 (DI), MessagePipe 1.8.1 (pub/sub), UniTask 2.5.10 (async), Cysharp GameAnalytics & Google Ads bridges.
 4. **IDE defaults**: `.vscode/settings.json` hides `Library`, `Logs`, `Temp`, etc.—respect them.
 5. **Cursor/Copilot rules**: none exist (`.cursor/**`, `.cursorrules`, `.github/copilot-instructions.md` absent); this file defines policy.
 6. **Known compile symbols**: `GAMEKIT_LOG` (enables `GKLog` output), `GOOGLEADS_TESTDEVICE` (forces test device mode), `GA_ENABLED` (activates GameAnalytics paths).
@@ -22,7 +22,7 @@ This playbook keeps autonomous agents aligned when working inside `/Volumes/Work
 ## Tooling & MCP
 1. Install Unity 6000.3.7f1 through Unity Hub; CLI path `/Applications/Unity/Hub/Editor/6000.3.7f1/Unity.app`.
 2. Install .NET 8 SDK (latest LTS acceptable) for `dotnet build/format/test` on `VGameKit.slnx`.
-3. MCP: `opencode.json` registers `unity-api` via `uvx unity-api-mcp` (`UNITY_VERSION=2022`). Use `search_unity_api`, `get_method_signature`, etc., before writing unfamiliar APIs. Cache lives in `~/.unity-api-mcp/`; never commit it.
+3. MCP: `opencode.json` registers `unity-api` via `uvx unity-api-mcp` (env: `UNITY_PROJECT_PATH` set to the project root). Use `search_unity_api`, `get_method_signature`, etc., before writing unfamiliar APIs. Cache lives in `~/.unity-api-mcp/`; never commit it.
 
 ## Local Setup Checklist
 1. Clone with LFS if you expect large binaries (`git lfs install`).
@@ -97,14 +97,14 @@ The repo currently ships demo scenes but no formal EditMode/PlayMode test assemb
 ## Dependency Injection & Messaging
 1. App-level scopes derive from `AbsMainLifetimeScope`; scene/subsystem scopes derive from `AbsBaseLifetimeScope`. Register builders, presenters, and pools via DI, never via `new` outside scopes.
 2. `AbsMainLifetimeScope` calls `builder.RegisterMessagePipe()` internally and stores the returned options in `_messagePipeOpts`. Do **not** call `RegisterMessagePipe()` again in subclasses; use `_messagePipeOpts` for additional broker registrations.
-3. `AbsAppManager` implements `IAsyncStartable`—VContainer calls `StartAsync(CancellationToken)` automatically; do not call it manually.
-4. For subscribable plain-C# types, inherit `SubscribableConcrete` and override `Init()` and `Subscriptions()`. VContainer calls `Initialize()` via `IInitializable`—do not call it manually.
-5. For subscribable MonoBehaviours, inherit `SubscribableMonoBehaviour` and override the same methods. VContainer injects via `[Inject] Construct()`—do not call it manually.
+3. `AbsAppManager` inherits `SubscribableConcrete` and implements `IAsyncStartable`—VContainer calls `StartAsync(CancellationToken)` automatically; do not call it manually.
+4. For subscribable plain-C# types, inherit `SubscribableConcrete` and override the `virtual` methods `Init()` and `Subscriptions()`. VContainer calls `Initialize()` via `IInitializable`—do not call it manually.
+5. For subscribable MonoBehaviours, inherit `SubscribableMonoBehaviour` (concrete class) and override the same `virtual` methods. VContainer injects via `[Inject] Construct()`—do not call it manually.
 6. MessagePipe usage: inject `ISubscriber<T>`/`IPublisher<T>` with `[Inject]`; always `AddTo(_bagBuilder)` to avoid leaks.
-7. Process flows: extend `BaseProcessFlow<TArgs>` (not `IFlowTask`/`IFlowAsyncTask` directly) and wire through `ProcessFlowProvider` so cancellation tokens propagate correctly.
+7. Process flows: extend `BaseProcessFlow<TArgs>` (not `IFlowTask<T>`/`IFlowAsyncTask<T>` directly) and wire through `ProcessFlowProvider` so cancellation tokens propagate correctly.
 
 ## UI Systems
-1. Menu managers: `BaseMenuManager<TEnum>` plus presenters; enforce enum identifiers (no raw strings). `MenuMode.Single` calls `CloseOthers()` automatically.
+1. Menu managers: `BaseMenuManager<TMenuName>` plus presenters; enforce enum identifiers (`where TMenuName : Enum`, no raw strings). `MenuMode.Single` calls `CloseOthers()` automatically.
 2. Popup builder: chain `AddPopup`, provide strongly typed `BasePopupModel` derivatives, finish with `.OpenPopup()`, optionally attach `.OnCompleteFlow`.
 3. Ads UI: `AdsBaseView` plus Banner/Interstitial/Rewarded presenters; ensure consent via `GoogleMobileAdsConsentController` before personalized ads.
 
@@ -122,7 +122,7 @@ The repo currently ships demo scenes but no formal EditMode/PlayMode test assemb
 1. **Namespaces & braces**: follow Unity defaults—opening brace on new line for namespaces, types, and methods. Project namespaces follow the pattern `VGameKit.Runtime.*`, `VGameKit.IO.Runtime`, `VGameKit.GA.Runtime`, `VGameKit.GoogleAds.Runtime`.
 2. **Imports**: order `System*`, third-party (Cysharp, MessagePipe, Unity), then project namespaces; remove unused directives (analyzers enforce).
 3. **Formatting**: four spaces, no tabs; braces on new lines except auto-properties; use expression-bodied members only when clarity improves.
-4. **Types & naming**: classes/interfaces/enums `PascalCase`; interfaces prefixed with `I`; private fields `_camelCase`; serialized fields `[SerializeField] private _foo`; constants `PascalCase` unless `static readonly`.
+4. **Types & naming**: classes/interfaces/enums `PascalCase`; interfaces prefixed with `I`; private fields `_camelCase`; serialized fields `[SerializeField] private _camelCase`; ScriptableObject properties may use `[field: SerializeField]`; constants `PascalCase` unless `static readonly`.
 5. **Generics**: add constraints (e.g., `where T : Enum` in `BaseMenuManager`); prefer `<typeparam>` XML docs on public generics.
 6. **Nullability**: project does not use nullable references; guard manually (`if (_menuRoot is not null)`); prefer early returns.
 7. **Async**: use `UniTask`/`UniTaskVoid` (only inside Unity context) and pass `CancellationToken` through; never block on `UniTask`.
