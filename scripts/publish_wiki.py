@@ -46,7 +46,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
-WIKI_REMOTE = "https://github.com/CengizKuscu/VGameKit.wiki.git"
+WIKI_REMOTE = "git@github.com:CengizKuscu/VGameKit.wiki.git"
 
 # Maps every source file (relative to DOCS_ROOT) → flat wiki page name (no .md)
 #
