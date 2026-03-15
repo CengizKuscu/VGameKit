@@ -1,6 +1,14 @@
 # VGameKit
 
-VGameKit is a modular Unity framework designed to streamline game development by providing a collection of pre-built tools and systems.
+VGameKit is a modular Unity framework designed to streamline game development by providing a collection of pre-built tools and systems. It is built on top of three best-in-class libraries for Unity game development:
+
+| Library | Role |
+|---------|------|
+| [VContainer](https://vcontainer.hadashikick.jp/) | Dependency injection and object lifetime management |
+| [UniTask](https://github.com/Cysharp/UniTask) | High-performance async/await for Unity |
+| [MessagePipe](https://github.com/Cysharp/MessagePipe) | High-performance in-process messaging and pub/sub |
+
+VGameKit handles the wiring between these libraries so you can focus on game logic. For advanced usage beyond what VGameKit exposes, visiting each library's documentation directly is recommended.
 
 > Full documentation: **[VGameKit Wiki](https://github.com/CengizKuscu/VGameKit/wiki)**
 
