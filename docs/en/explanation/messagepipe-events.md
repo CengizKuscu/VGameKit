@@ -10,20 +10,20 @@ MessagePipe solves this by decoupling publishers from subscribers: the `ScoreMan
 
 ## How VGameKit integrates MessagePipe
 
-`AbsMainLifetimeScope` calls `builder.RegisterMessagePipe()` once during scope construction and stores the returned `MessagePipeOptions` in `_messagePipeOpts`. Subclasses use `_messagePipeOpts` to register additional brokers — they must **not** call `RegisterMessagePipe()` again.
+`AbsMainLifetimeScope` calls `builder.RegisterMessagePipe()` once during scope construction. On Unity 2022.1+ with VContainer 1.14.0+ (which VGameKit targets), `IPublisher<T>` and `ISubscriber<T>` pairs are resolved automatically — no manual broker registration is needed.
 
 ```csharp
-// Inside your app LifetimeScope subclass:
+// Inside your app LifetimeScope subclass — no AddBroker calls required:
 protected override void Configure(IContainerBuilder builder)
 {
-    base.Configure(builder); // registers MessagePipe, stores _messagePipeOpts
+    base.Configure(builder); // registers MessagePipe
 
-    // Register a pub/sub pair for a custom event:
-    _messagePipeOpts.AddBroker<PlayerDiedEvent>();
+    // IPublisher<PlayerDiedEvent> and ISubscriber<PlayerDiedEvent>
+    // are available for injection without any additional registration.
 }
 ```
 
-After registration, resolve `IPublisher<T>` and `ISubscriber<T>` through normal DI injection.
+Inject `IPublisher<T>` and `ISubscriber<T>` directly via `[Inject]` in any class managed by VContainer.
 
 ---
 
@@ -94,7 +94,8 @@ Never subscribe without `AddTo(_bagBuilder)` in a VGameKit class. For one-shot s
 
 ## What to avoid
 
-- **Calling `RegisterMessagePipe()` more than once**: causes a runtime exception from VContainer. All broker registrations must go through `_messagePipeOpts`.
+- **Calling `RegisterMessagePipe()` more than once**: causes a runtime exception from VContainer. `AbsMainLifetimeScope` already calls it; never repeat it in a subclass.
+- **Manually calling `AddBroker<T>()` or `RegisterMessageBroker<T>()`**: not needed on Unity 2022.1+ with VContainer 1.14.0+. Adding unnecessary broker calls has no effect but clutters the scope.
 - **Subscribing in `Awake` or `Start` instead of `Subscriptions()`**: VGameKit's startup order guarantees that `Subscriptions()` runs after injection. `Awake`/`Start` may run before DI is complete.
 - **Publishing from constructors**: publishers may not yet have subscribers. Publish from `IInitializable.Initialize` or later.
 - **Using static events alongside MessagePipe**: static events bypass the DI lifecycle and scope disposal.

@@ -4,6 +4,8 @@
 
 VGameKit'in loglama sistemi `GKConfig` (`ScriptableObject`) ve `GKLog` (statik yardımcı) tarafından kontrol edilir. Log çıktısı, `GAMEKIT_LOG` scripting define sembolü mevcut değilse derleme zamanında tamamen kaldırılır. Bu rehber; config asset'inin oluşturulmasını, log seviyelerinin seçilmesini ve kod içine log çağrılarının nasıl ekleneceğini kapsar.
 
+**Loglama tamamen isteğe bağlıdır.** `GAMEKIT_LOG` sembolünü eklemezseniz veya `LogState`'i `None` olarak bırakırsanız framework hatasız çalışmaya devam eder; herhangi bir log çıktısı üretilmez ve performans üzerinde hiçbir etkisi olmaz.
+
 **Ön Koşullar:** `VGameKit.Runtime` modülü kurulu.
 
 ---

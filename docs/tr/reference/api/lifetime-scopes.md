@@ -76,7 +76,7 @@ public abstract class AbsMainLifetimeScope : AbsBaseLifetimeScope
 
 | Tür | Ad | Açıklama |
 |---|---|---|
-| `MessagePipeOptions` | `_messagePipeOpts` | Kayıtlı MessagePipe seçeneklerini tutar; alt sınıflara açık |
+| `MessagePipeOptions` | `_messagePipeOpts` | Kayıtlı MessagePipe seçeneklerini tutar; alt sınıflar gerektiğinde (örn. seçenek yapılandırması için) kullanabilir |
 
 ### Configure
 
@@ -94,7 +94,7 @@ protected override void Configure(IContainerBuilder builder)
 }
 ```
 
-`builder.RegisterMessagePipe()`, MessagePipe DI altyapısını kaydeder. Uygulama genelinde kullanılan tüm `IPublisher<T>` / `ISubscriber<T>` çiftleri, bu çağrıyı yapan aynı container'dan çözümlenmelidir.
+`builder.RegisterMessagePipe()`, MessagePipe DI altyapısını kaydeder. Unity 2022.1+ ve VContainer 1.14.0+ ile tüm `IPublisher<T>` / `ISubscriber<T>` çiftleri bu container'dan otomatik olarak çözümlenir — ek `RegisterMessageBroker` çağrısı gerekmez.
 
 ---
 
@@ -109,8 +109,8 @@ public sealed class AppLifetimeScope : AbsMainLifetimeScope
     {
         base.Configure(builder);
         // Uygulama düzeyindeki singleton'ları kaydet
-        builder.Register<AppManager>(Lifetime.Singleton).AsImplementedInterfaces();
-        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsSelf();
+        builder.Register<AppManager>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
     }
 }
 ```

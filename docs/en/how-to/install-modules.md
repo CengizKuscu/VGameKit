@@ -114,16 +114,6 @@ Unity will fetch the package directly from GitHub. No files need to be copied ma
 
 ---
 
-## Step 5 — Verify the build
-
-```bash
-dotnet build VGameKit.slnx -c Debug
-```
-
-Zero warnings are expected. If the build reports missing references for `GoogleMobileAds.dll`, ensure the Google Mobile Ads package resolved correctly via the External Dependency Manager.
-
----
-
 ## Conditional compilation symbols
 
 | Symbol | Set by | Effect |

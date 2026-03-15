@@ -341,10 +341,13 @@ Initialize(token)
 `GoogleMobileAdsController`, MessagePipe abone/yayımcısını `[Inject] Construct(IObjectResolver resolver)` aracılığıyla alır. Yaşam döngüsü kapsamınıza kaydedin:
 
 ```csharp
-// LifetimeScope.Configure içinde:
-builder.RegisterComponentInHierarchy<GoogleMobileAdsController>();
-builder.RegisterMessagePipe();
-builder.RegisterMessageBroker<AdsEventStatus, AdsEvent>(options);
+// LifetimeScope'ta:
+[SerializeField] private GoogleMobileAdsController _adsController;
+
+// Configure içinde:
+builder.RegisterComponent(_adsController);
+// IPublisher<AdsEventStatus, AdsEvent> ve ISubscriber<AdsEventStatus, AdsEvent>
+// otomatik olarak çözümlenir — RegisterMessageBroker çağrısı gerekmez.
 ```
 
 ### Reklam Talep Etme

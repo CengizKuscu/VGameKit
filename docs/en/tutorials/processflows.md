@@ -16,17 +16,19 @@ Each flow carries its own argument type.
 ```csharp
 using VGameKit.Runtime.ProcessFlows;
 
-public class ValidateSaveArgs : BaseProcessFlowArgs
+// Implement IProcessFlowArgs directly — BaseProcessFlowArgs is a struct and cannot
+// be inherited. Use it only for zero-input flows where you need a typed empty value.
+public class ValidateSaveArgs : IProcessFlowArgs
 {
     public string SaveSlot;
 }
 
-public class LoadAssetsArgs : BaseProcessFlowArgs
+public class LoadAssetsArgs : IProcessFlowArgs
 {
     public string[] BundleNames;
 }
 
-public class ShowHUDArgs : BaseProcessFlowArgs { }
+public class ShowHUDArgs : IProcessFlowArgs { }
 ```
 
 ---
@@ -103,7 +105,9 @@ public class ShowHUDFlow : BaseProcessFlow<ShowHUDArgs>
 
 ---
 
-## Step 5 — Register ProcessFlowProvider
+## Step 5 — Register flows in the LifetimeScope
+
+Use `RegisterProcessFlow<TArgs, TFlow>` to register a `Func<TArgs, TFlow>` factory for each flow. `ProcessFlowProvider` must also be registered explicitly — `RegisterProcessFlow` calls `container.Resolve<ProcessFlowProvider>()` internally and will fail at runtime if the provider is not in the container.
 
 ```csharp
 using VContainer;
@@ -115,7 +119,16 @@ public class GameLifetimeScope : AbsMainLifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         base.Configure(builder);
-        builder.Register<ProcessFlowProvider>(Lifetime.Singleton);
+
+        // ProcessFlowProvider must be registered first — RegisterProcessFlow depends on it.
+        // AsImplementedInterfaces() lets VContainer call IDisposable.Dispose() automatically.
+        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+
+        // Each call registers a Func<TArgs, TFlow> factory
+        builder.RegisterProcessFlow<ValidateSaveArgs, ValidateSaveFlow>(Lifetime.Singleton);
+        builder.RegisterProcessFlow<LoadAssetsArgs, LoadAssetsFlow>(Lifetime.Singleton);
+        builder.RegisterProcessFlow<ShowHUDArgs, ShowHUDFlow>(Lifetime.Singleton);
+
         builder.Register<GameStarter>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
     }
 }
@@ -125,7 +138,11 @@ public class GameLifetimeScope : AbsMainLifetimeScope
 
 ## Step 6 — Chain and execute the flows
 
+Inject `Func<TArgs, TFlow>` factories directly — do not inject `ProcessFlowProvider` for flow creation. The caller owns a `CancellationTokenSource` and passes its token to `Execute`. Since `GameStarter` extends `SubscribableConcrete`, create `_cts` in `Init()` and cancel it by overriding `Dispose()`:
+
 ```csharp
+using System;
+using System.Threading;
 using VContainer;
 using VGameKit.Runtime.Core;
 using VGameKit.Runtime.Log;
@@ -133,23 +150,29 @@ using VGameKit.Runtime.ProcessFlows;
 
 public class GameStarter : SubscribableConcrete
 {
-    [Inject] private readonly ProcessFlowProvider _flowProvider;
+    [Inject] private readonly Func<ValidateSaveArgs, ValidateSaveFlow> _validateFlow;
+    [Inject] private readonly Func<LoadAssetsArgs, LoadAssetsFlow> _loadFlow;
+    [Inject] private readonly Func<ShowHUDArgs, ShowHUDFlow> _hudFlow;
+
+    private CancellationTokenSource _cts;
 
     protected override void Init()
     {
+        _cts = new CancellationTokenSource();
         StartSequence();
+    }
+
+    public override void Dispose()
+    {
+        _cts?.Cancel();
+        base.Dispose();
     }
 
     private void StartSequence()
     {
-        var validateFlow = _flowProvider.CreateProcessFlow<ValidateSaveArgs, ValidateSaveFlow>(
-            new ValidateSaveArgs { SaveSlot = "slot_0" });
-
-        var loadFlow = _flowProvider.CreateProcessFlow<LoadAssetsArgs, LoadAssetsFlow>(
-            new LoadAssetsArgs { BundleNames = new[] { "ui", "audio" } });
-
-        var hudFlow = _flowProvider.CreateProcessFlow<ShowHUDArgs, ShowHUDFlow>(
-            new ShowHUDArgs());
+        var validateFlow = _validateFlow(new ValidateSaveArgs { SaveSlot = "slot_0" });
+        var loadFlow     = _loadFlow(new LoadAssetsArgs { BundleNames = new[] { "ui", "audio" } });
+        var hudFlow      = _hudFlow(new ShowHUDArgs());
 
         // Chain: validate → load → hud
         validateFlow.AppendProcess(loadFlow);
@@ -158,7 +181,7 @@ public class GameStarter : SubscribableConcrete
         hudFlow.OnComplete(_ =>
             GKLog.Log(LogState.Game, "GameStarter: start sequence complete."));
 
-        validateFlow.Execute(validateFlow.cancellationToken);
+        validateFlow.Execute(_cts.Token);
     }
 }
 ```
@@ -183,11 +206,31 @@ Enter Play Mode. Console output should appear in order:
 
 ## Step 8 — Cancel mid-sequence
 
-To simulate a cancellation (e.g., the player disconnects):
+To cancel via the `CancellationTokenSource` already available in `GameStarter`, call `_cts.Cancel()` — this cancels all chained flows immediately:
 
 ```csharp
-_flowProvider.RemoveProcessFlow<LoadAssetsFlow>();
-// All pending appended flows are also cancelled.
+// Option A — cancel everything via the CancellationTokenSource (already in GameStarter):
+_cts.Cancel();
+// All flows in the chain receive the cancellation signal simultaneously.
+```
+
+To cancel only a specific flow type, inject `ProcessFlowProvider` into a separate manager class:
+
+```csharp
+// Option B — cancel a specific flow type via ProcessFlowProvider:
+public class GameController : IInitializable, IDisposable
+{
+    [Inject] private readonly ProcessFlowProvider _flowProvider;
+
+    public void Initialize() { }
+    public void Dispose() { }
+
+    public void AbortLoading()
+    {
+        _flowProvider.RemoveProcessFlow<LoadAssetsFlow>();
+        // Pending appended flows are also cancelled.
+    }
+}
 ```
 
 ---
@@ -197,7 +240,7 @@ _flowProvider.RemoveProcessFlow<LoadAssetsFlow>();
 - How to split complex sequences into discrete, single-responsibility flows.
 - How `AppendProcess` chains flows without tight coupling.
 - How `OnComplete` lets callers react without modifying the flow itself.
-- How `RemoveProcessFlow<T>` provides clean mid-sequence cancellation.
+- How `CancellationTokenSource` cancels an entire chain, and how `RemoveProcessFlow<T>` cancels a specific flow type via `ProcessFlowProvider`.
 
 ---
 

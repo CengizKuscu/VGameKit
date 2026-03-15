@@ -9,73 +9,123 @@ A two-panel UI (Main Menu + Settings), a confirmation popup, and the wiring that
 
 ---
 
-## Step 1 — Define menu identifiers
+## Step 1 — Define menu identifiers and events
 
 ```csharp
+using VGameKit.Runtime.UI.Menu;
+using VGameKit.Runtime.UI.Menu.Events;
+
 public enum AppScreen
 {
     MainMenu,
     Settings,
 }
-```
 
----
-
-## Step 2 — Create the menu manager
-
-```csharp
-using VGameKit.Runtime.UI.Menu;
-
-public class AppMenuManager : BaseMenuManager<AppScreen>
+public class OpenMenuEvent : BaseOpenMenuEvent<AppScreen, MenuData>
 {
+    public OpenMenuEvent(AppScreen menuName, MenuData menuData) : base(menuName, menuData) { }
+}
+
+public class CloseMenuEvent : BaseCloseMenuEvent<AppScreen>
+{
+    public CloseMenuEvent(AppScreen menuName) : base(menuName) { }
 }
 ```
 
 ---
 
-## Step 3 — Create and attach views
+## Step 2 — Create views
 
-For each screen:
-
-1. Create a Canvas GameObject (e.g., `MainMenuView`).
-2. Add a C# component that inherits `BaseMenuView<AppScreen>`:
+Create a MonoBehaviour prefab for each screen that inherits `BaseMenuView`:
 
 ```csharp
 using VGameKit.Runtime.UI.Menu;
 
-public class MainMenuView : BaseMenuView<AppScreen>
+public class MainMenuView : BaseMenuView
 {
-    public override AppScreen MenuId => AppScreen.MainMenu;
+    // UI references (buttons, labels, etc.)
+}
+
+public class SettingsView : BaseMenuView
+{
+    // UI references
 }
 ```
 
-Repeat for `SettingsView` with `MenuId = AppScreen.Settings`.
-
 ---
 
-## Step 4 — Create presenters
+## Step 3 — Create presenters
 
 ```csharp
+using MessagePipe;
 using VContainer;
 using VGameKit.Runtime.Log;
 using VGameKit.Runtime.UI.Menu;
 
-public class MainMenuPresenter : BaseMenuPresenter<AppScreen>
+public class MainMenuPresenter : BaseMenuPresenter<AppScreen, MenuData, MainMenuView>
 {
-    [Inject] private readonly AppMenuManager _menuManager;
+    public override AppScreen MenuName => AppScreen.MainMenu;
+    public override MenuMode MenuMode => MenuMode.Single;
 
-    public override AppScreen MenuId => AppScreen.MainMenu;
+    [Inject] private readonly IPublisher<OpenMenuEvent> _openMenuPublisher;
 
-    protected override void OnOpen()
+    protected override void OnShow(MenuData data)
     {
         GKLog.Log(LogState.Game, "MainMenu opened.");
     }
 
     public void OnSettingsPressed()
     {
-        _menuManager.Open(AppScreen.Settings);
-        // MenuMode.Single closes MainMenu automatically
+        // MenuMode.Single closes MainMenu automatically when Settings opens
+        _openMenuPublisher.Publish(new OpenMenuEvent(AppScreen.Settings, null));
     }
+}
+
+public class SettingsPresenter : BaseMenuPresenter<AppScreen, MenuData, SettingsView>
+{
+    public override AppScreen MenuName => AppScreen.Settings;
+    public override MenuMode MenuMode => MenuMode.Single;
+}
+```
+
+---
+
+## Step 4 — Create the menu manager
+
+```csharp
+using MessagePipe;
+using VContainer;
+using VGameKit.Runtime.UI.Menu;
+using VGameKit.Runtime.UI.Menu.Events;
+
+public class AppMenuManager : BaseMenuManager<AppScreen>
+{
+    [Inject] private readonly ISubscriber<OpenMenuEvent> _openSubscriber;
+    [Inject] private readonly ISubscriber<CloseMenuEvent> _closeSubscriber;
+
+    [Inject] private readonly MainMenuPresenter _mainMenuPresenter;
+    [Inject] private readonly SettingsPresenter _settingsPresenter;
+
+    public override void Subscriptions()
+    {
+        _openSubscriber.Subscribe(e => OpenMenuHandler(e)).AddTo(_bagBuilder);
+        _closeSubscriber.Subscribe(e => CloseMenu(e.MenuName)).AddTo(_bagBuilder);
+    }
+
+    protected override void OpenMenu(AppScreen menuName, MenuData menuData)
+    {
+        switch (menuName)
+        {
+            case AppScreen.MainMenu:
+                Open<MainMenuPresenter, MenuData>(_mainMenuPresenter, menuData);
+                break;
+            case AppScreen.Settings:
+                Open<SettingsPresenter, MenuData>(_settingsPresenter, menuData);
+                break;
+        }
+    }
+
+    private void OpenMenuHandler(OpenMenuEvent e) => OpenMenu(e.MenuName, e.MenuData);
 }
 ```
 
@@ -83,10 +133,12 @@ public class MainMenuPresenter : BaseMenuPresenter<AppScreen>
 
 ## Step 5 — Create a popup model
 
+`BasePopupModel<TPopupName>` requires the popup name enum as a type parameter.
+
 ```csharp
 using VGameKit.Runtime.UI.Popup;
 
-public class ConfirmQuitModel : BasePopupModel
+public class ConfirmQuitModel : BasePopupModel<AppScreen>
 {
     public string Message;
     public System.Action OnConfirmed;
@@ -101,11 +153,12 @@ public class ConfirmQuitModel : BasePopupModel
 using VContainer;
 using VGameKit.Runtime.UI.Popup;
 
-public class SettingsPresenter : BaseMenuPresenter<AppScreen>
+public class SettingsPresenter : BaseMenuPresenter<AppScreen, MenuData, SettingsView>
 {
-    [Inject] private readonly PopupBuilder _popupBuilder;
+    [Inject] private readonly DemoPopupBuilder _popupBuilder;
 
-    public override AppScreen MenuId => AppScreen.Settings;
+    public override AppScreen MenuName => AppScreen.Settings;
+    public override MenuMode MenuMode => MenuMode.Single;
 
     public void OnQuitPressed()
     {
@@ -116,7 +169,7 @@ public class SettingsPresenter : BaseMenuPresenter<AppScreen>
         };
 
         _popupBuilder
-            .AddPopup<ConfirmQuitModel, ConfirmQuitPopup>(model)
+            .AddPopup(AppScreen.Settings, model)
             .OpenPopup();
     }
 }
@@ -126,14 +179,16 @@ public class SettingsPresenter : BaseMenuPresenter<AppScreen>
 
 ## Step 7 — Implement the popup view
 
+Inherit from `BasePopup<TPopupName>`. Access the model via the `_model` field (type `BasePopupModel<TPopupName>`) and cast it to your concrete model type inside `OnShowBefore()`.
+
 ```csharp
 using VGameKit.Runtime.UI.Popup;
 
-public class ConfirmQuitPopup : BasePopupView<ConfirmQuitModel>
+public class ConfirmQuitPopup : BasePopup<AppScreen>
 {
-    protected override void OnOpen(ConfirmQuitModel model)
+    protected override void OnShowBefore()
     {
-        // Bind UI elements to model data
+        var model = _model as ConfirmQuitModel;
         _messageLabel.text = model.Message;
         _confirmButton.onClick.AddListener(() =>
         {
@@ -149,10 +204,34 @@ public class ConfirmQuitPopup : BasePopupView<ConfirmQuitModel>
 ## Step 8 — Register in LifetimeScope
 
 ```csharp
-builder.Register<AppMenuManager>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
-builder.Register<MainMenuPresenter>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
-builder.Register<SettingsPresenter>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
-builder.Register<PopupBuilder>(Lifetime.Singleton);
+using UnityEngine;
+using VContainer;
+using VGameKit.Runtime.Core;
+using VGameKit.Runtime.UI.Menu;
+
+public class AppLifetimeScope : AbsBaseLifetimeScope
+{
+    [SerializeField] private MainMenuView _mainMenuViewPrefab;
+    [SerializeField] private SettingsView _settingsViewPrefab;
+    [SerializeField] private AppMenuManager _menuManager;
+
+    protected override void Configure(IContainerBuilder builder)
+    {
+        base.Configure(builder);
+
+        builder.RegisterComponent(_mainMenuViewPrefab);
+        builder.RegisterComponent(_settingsViewPrefab);
+        builder.RegisterComponent(_menuManager);
+
+        builder.RegisterMenuFactory<AppScreen, MainMenuPresenter, MainMenuView>(
+            _mainMenuViewPrefab, _menuManager.MenuRoot, Lifetime.Singleton);
+        builder.RegisterMenuFactory<AppScreen, SettingsPresenter, SettingsView>(
+            _settingsViewPrefab, _menuManager.MenuRoot, Lifetime.Singleton);
+
+        builder.Register<MainMenuPresenter>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+        builder.Register<SettingsPresenter>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+    }
+}
 ```
 
 ---
@@ -166,6 +245,7 @@ Enter Play Mode. Click **Settings** — Main Menu should close and Settings shou
 ## What you learned
 
 - How `BaseMenuManager<TEnum>` controls panel visibility with `MenuMode.Single`.
+- How navigation is driven by MessagePipe events, keeping callers decoupled from the manager.
 - How `BaseMenuPresenter` and `BaseMenuView` pair to represent each screen.
 - How the popup builder chains `AddPopup` / `OpenPopup` with typed models.
 

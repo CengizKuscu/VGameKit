@@ -68,7 +68,7 @@ public class MyAppLifetimeScope : AbsMainLifetimeScope
 
 ## Step 4 — Create the App Manager
 
-Create `MyAppManager` inheriting from `AbsAppManager`:
+Create `MyAppManager` inheriting from `AbsAppManager`. Override the two abstract methods — do **not** override `StartAsync`, which is concrete and sealed:
 
 ```csharp
 using System.Threading;
@@ -78,15 +78,20 @@ using VGameKit.Runtime.Log;
 
 public class MyAppManager : AbsAppManager
 {
-    public override async UniTask StartAsync(CancellationToken cancellation)
+    protected override async UniTask InitializeGame(CancellationToken token)
     {
-        GKLog.Log(LogState.Game, "MyAppManager: App started.");
+        GKLog.Log(LogState.Game, "MyAppManager: Initializing game...");
         await UniTask.CompletedTask;
+    }
+
+    protected override void OnAppReady(AppReadyEvent @event)
+    {
+        GKLog.Log(LogState.Game, "MyAppManager: App is ready.");
     }
 }
 ```
 
-VContainer calls `StartAsync` automatically via `IAsyncStartable` — do not call it manually.
+VContainer calls `StartAsync` automatically via `IAsyncStartable`. `StartAsync` calls `InitializeGame`, then publishes `AppReadyEvent` which triggers `OnAppReady`. Do not call any of these manually.
 
 ---
 
@@ -100,7 +105,8 @@ VContainer calls `StartAsync` automatically via `IAsyncStartable` — do not cal
 You should see in the Console:
 
 ```
-[Game] MyAppManager: App started.
+[Game] MyAppManager: Initializing game...
+[Game] MyAppManager: App is ready.
 ```
 
 ---
@@ -118,7 +124,7 @@ VGameKit stores environment values in `GKConfig` ScriptableObjects.
 ## What you learned
 
 - How to bootstrap VGameKit's DI container with `AbsMainLifetimeScope`.
-- How `AbsAppManager` / `IAsyncStartable` provides a safe async entry point.
+- How `AbsAppManager` provides `InitializeGame` and `OnAppReady` as the correct override points.
 - How to enable `GKLog` output with a compile symbol.
 - How `GKConfig` ScriptableObjects hold environment-specific data.
 

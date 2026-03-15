@@ -10,20 +10,20 @@ MessagePipe, publisher'ları subscriber'lardan ayırarak bunu çözer: `ScoreMan
 
 ## VGameKit MessagePipe'ı nasıl entegre eder
 
-`AbsMainLifetimeScope`, scope yapılandırması sırasında `builder.RegisterMessagePipe()`'ı bir kez çağırır ve döndürülen `MessagePipeOptions`'ı `_messagePipeOpts`'ta saklar. Alt sınıflar ek broker'ları kaydetmek için `_messagePipeOpts` kullanır — `RegisterMessagePipe()`'ı **tekrar çağırmamalıdır**.
+`AbsMainLifetimeScope`, scope yapılandırması sırasında `builder.RegisterMessagePipe()`'ı bir kez çağırır. VGameKit'in hedeflediği Unity 2022.1+ ve VContainer 1.14.0+ sürümlerinde, `IPublisher<T>` ve `ISubscriber<T>` çiftleri otomatik olarak çözümlenir — manuel broker kaydı gerekmez.
 
 ```csharp
-// Uygulama LifetimeScope alt sınıfınızda:
+// Uygulama LifetimeScope alt sınıfınızda — AddBroker çağrısı gerekmez:
 protected override void Configure(IContainerBuilder builder)
 {
-    base.Configure(builder); // MessagePipe'ı kaydeder, _messagePipeOpts'u saklar
+    base.Configure(builder); // MessagePipe'ı kaydeder
 
-    // Özel bir event için pub/sub çifti kaydedin:
-    _messagePipeOpts.AddBroker<PlayerDiedEvent>();
+    // IPublisher<PlayerDiedEvent> ve ISubscriber<PlayerDiedEvent>
+    // herhangi bir ek kayıt olmadan injection için hazırdır.
 }
 ```
 
-Kayıt sonrasında, normal DI injection aracılığıyla `IPublisher<T>` ve `ISubscriber<T>`'yi çözün.
+VContainer tarafından yönetilen herhangi bir sınıfta `IPublisher<T>` ve `ISubscriber<T>`'yi doğrudan `[Inject]` ile inject edin.
 
 ---
 
@@ -94,7 +94,8 @@ Bir VGameKit sınıfında `AddTo(_bagBuilder)` olmadan asla abone olmayın. Subs
 
 ## Kaçınılması gerekenler
 
-- **`RegisterMessagePipe()`'ı birden fazla kez çağırmak**: VContainer'dan çalışma zamanı istisnasına neden olur. Tüm broker kayıtları `_messagePipeOpts` üzerinden yapılmalıdır.
+- **`RegisterMessagePipe()`'ı birden fazla kez çağırmak**: VContainer'dan çalışma zamanı istisnasına neden olur. `AbsMainLifetimeScope` zaten çağırır; alt sınıfta tekrarlamayın.
+- **`AddBroker<T>()` veya `RegisterMessageBroker<T>()` çağrısını manuel eklemek**: Unity 2022.1+ ve VContainer 1.14.0+ ile gerekmez. Gereksiz broker çağrıları eklemek herhangi bir etki yaratmaz, yalnızca scope'u karmaşıklaştırır.
 - **`Subscriptions()` yerine `Awake` veya `Start`'ta abone olmak**: VGameKit'in başlatma sırası, `Subscriptions()`'ın injection sonrasında çalışmasını garanti eder. `Awake`/`Start`, DI tamamlanmadan önce çalışabilir.
 - **Constructor'lardan yayınlamak**: publisher'ların henüz subscriber'ı olmayabilir. `IInitializable.Initialize`'dan veya daha sonrasından yayınlayın.
 - **MessagePipe ile birlikte statik event'ler kullanmak**: statik event'ler DI yaşam döngüsünü ve scope disposal'ı atlatır.

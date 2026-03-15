@@ -4,6 +4,8 @@
 
 VGameKit's logging system is controlled by `GKConfig` (a `ScriptableObject`) and `GKLog` (a static utility). Log output is compiled away entirely unless the `GAMEKIT_LOG` scripting define symbol is present. This guide covers creating the config asset, choosing log levels, and adding log calls in code.
 
+**Logging is entirely optional.** If you omit the `GAMEKIT_LOG` symbol or leave `LogState` set to `None`, the framework continues to work without error — no log output is produced and there is no performance impact.
+
 **Prerequisites:** `VGameKit.Runtime` module installed.
 
 ---

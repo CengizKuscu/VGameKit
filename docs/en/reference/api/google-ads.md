@@ -341,10 +341,13 @@ Initialize(token)
 `GoogleMobileAdsController` receives its MessagePipe subscriber/publisher via `[Inject] Construct(IObjectResolver resolver)`. Register it in your lifetime scope:
 
 ```csharp
-// In LifetimeScope.Configure:
-builder.RegisterComponentInHierarchy<GoogleMobileAdsController>();
-builder.RegisterMessagePipe();
-builder.RegisterMessageBroker<AdsEventStatus, AdsEvent>(options);
+// In LifetimeScope:
+[SerializeField] private GoogleMobileAdsController _adsController;
+
+// In Configure:
+builder.RegisterComponent(_adsController);
+// IPublisher<AdsEventStatus, AdsEvent> and ISubscriber<AdsEventStatus, AdsEvent>
+// are resolved automatically — no RegisterMessageBroker call needed.
 ```
 
 ### Requesting an Ad

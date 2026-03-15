@@ -52,32 +52,28 @@ Geliştirme sırasında **Use Test Ads** işaretini bırakın; Google'ın sabit 
 
 ---
 
-## Adım 3 — LifetimeScope'ta MessagePipe keyed subscription'larını kaydedin
+## Adım 3 — Controller'ı LifetimeScope'a kaydedin
 
-`GoogleMobileAdsController`, `ISubscriber<AdsEventStatus, AdsEvent>` ve `IPublisher<AdsEventStatus, AdsEvent>` kullanır. Bunlar uygulama düzeyindeki `AbsMainLifetimeScope`'ta kayıtlı olmalıdır:
+`GoogleMobileAdsController`, `ISubscriber<AdsEventStatus, AdsEvent>` ve `IPublisher<AdsEventStatus, AdsEvent>` kullanır. Unity 2022.1+ ve VContainer 1.14.0+ ile keyed pub/sub çiftleri otomatik olarak çözümlenir — `RegisterMessageBroker` çağrısı gerekmez.
 
 ```csharp
-using MessagePipe;
 using VContainer;
+using UnityEngine;
 using VGameKit.Runtime.Core;
-using VGameKit.GoogleAds.Runtime.Events;
+using VGameKit.GoogleAds.Runtime;
 
 public class AppLifetimeScope : AbsMainLifetimeScope
 {
+    [SerializeField] private GoogleMobileAdsController _adsController;
+
     protected override void Configure(IContainerBuilder builder)
     {
-        base.Configure(builder); // MessagePipe'ı global olarak kaydeder
+        base.Configure(builder);
 
-        var options = builder.RegisterMessagePipe();
-        builder.RegisterMessageBroker<AdsEventStatus, AdsEvent>(options);
-
-        // Controller'ı sahnede zaten bulunan bir bileşen olarak kaydet
-        builder.RegisterComponentInHierarchy<GoogleMobileAdsController>();
+        builder.RegisterComponent(_adsController);
     }
 }
 ```
-
-> `AbsMainLifetimeScope.Configure` dahili olarak `builder.RegisterMessagePipe()` çağırır. İki kez çağırmayın; ek broker'ları kaydetmek için döndürülen `options`'ı kullanın.
 
 ---
 
@@ -163,7 +159,7 @@ public override void Subscriptions()
         .AddTo(_bagBuilder);
 
     _adsSubscriber
-        .Subscribe(AdsEventStatus.ResponseRewarded, e =>
+        .Subscribe(AdsEventStatus.ResponseEarnReward, e =>
         {
             GKLog.Log(LogState.Ads, "Ödül kazanıldı");
             e.OnComplete?.Invoke();
@@ -181,7 +177,7 @@ public override void Subscriptions()
 | `Request` | Reklam gösterimi talep etmek için kodunuz tarafından yayınlanır |
 | `ResponseOpened` | Reklam gösterilmeye başladı |
 | `ResponseClosed` | Reklam kullanıcı tarafından kapatıldı |
-| `ResponseRewarded` | Ödüllü reklam ödülü onaylandı |
+| `ResponseEarnReward` | Ödüllü reklam ödülü onaylandı |
 | `ResponseFailed` | Reklam yüklenemedi veya gösterilemedi |
 
 ---

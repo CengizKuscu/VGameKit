@@ -10,19 +10,23 @@ Process flows are discrete, cancellable, async units of work. `BaseProcessFlow<T
 
 ## Step 1 — Define flow arguments
 
-Create a class that implements `IProcessFlowArgs`. It carries the data the flow needs at runtime.
+Create a class that implements `IProcessFlowArgs`. Pass data via a constructor so args are immutable at creation time.
 
 ```csharp
 using VGameKit.Runtime.ProcessFlows;
 
-public class LoadLevelArgs : BaseProcessFlowArgs
+public class LoadLevelFlowArgs : IProcessFlowArgs
 {
-    public int LevelIndex;
-    public bool ShowLoadingScreen;
+    public int LevelIndex { get; private set; }
+
+    public LoadLevelFlowArgs(int levelIndex)
+    {
+        LevelIndex = levelIndex;
+    }
 }
 ```
 
-`BaseProcessFlowArgs` is a convenience base with no required members — you may also implement `IProcessFlowArgs` directly.
+`BaseProcessFlowArgs` is an empty struct convenience — use it only when the flow needs no input at all.
 
 ---
 
@@ -34,100 +38,183 @@ Create a class that inherits `BaseProcessFlow<TArgs>` and implements `AsyncExecu
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using VContainer;
-using VGameKit.Runtime.Log;
 using VGameKit.Runtime.ProcessFlows;
 
-public class LoadLevelFlow : BaseProcessFlow<LoadLevelArgs>
+public class LoadLevelFlow : BaseProcessFlow<LoadLevelFlowArgs>
 {
-    // Inject any dependencies needed by this flow
-    [Inject] private readonly SceneLoader _sceneLoader;
-
-    protected override void Initialize()
-    {
-        GKLog.Log(LogState.ProcessFlow, $"LoadLevelFlow: Initialize level {Args.LevelIndex}");
-    }
+    // Inject dependencies the flow needs
+    [Inject] private readonly LevelPrefabs _levelPrefabs;
 
     public override async UniTask<IProcessFlow> AsyncExecute(CancellationToken ctx)
     {
-        GKLog.Log(LogState.ProcessFlow, $"LoadLevelFlow: Loading level {Args.LevelIndex}");
+        var levelPrefab = _levelPrefabs.Levels[Args.LevelIndex];
 
-        await _sceneLoader.LoadAsync(Args.LevelIndex, ctx);
+        LevelObj level = null;
+        await UniTask.WaitUntil(
+            () => level = Object.Instantiate(levelPrefab).GetComponent<LevelObj>(),
+            cancellationToken: ctx);
 
-        GKLog.Log(LogState.ProcessFlow, "LoadLevelFlow: Done");
+        level.Initialize();
         return this;
     }
 }
 ```
 
-`AsyncExecute` must return `this` (or the next `IProcessFlow`) after finishing work. Returning `this` signals completion and triggers the continuation chain.
+`AsyncExecute` must return `this` after finishing work. Returning `this` signals completion and triggers the continuation chain.
+
+Override the optional `protected virtual void Initialize()` for any pre-execution setup that runs synchronously before `AsyncExecute`.
 
 ---
 
 ## Step 3 — Register in the LifetimeScope
 
-Register `ProcessFlowProvider` as a singleton. Individual flows are created via `new()` + `Inject()` inside the provider — **do not** register them as DI types.
+Use `RegisterProcessFlow<TArgs, TFlow>` to register a `Func<TArgs, TFlow>` factory. Also register `ProcessFlowProvider` as a singleton — `RegisterProcessFlow` calls `container.Resolve<ProcessFlowProvider>()` internally and will throw a resolution error at runtime if the provider is missing.
 
 ```csharp
+using UnityEngine;
 using VContainer;
 using VGameKit.Runtime.Core;
 using VGameKit.Runtime.ProcessFlows;
 
-public class GameLifetimeScope : AbsBaseLifetimeScope
+public class AppLifetimeScope : AbsMainLifetimeScope
 {
+    [SerializeField] private LevelPrefabs _levelPrefabs;
+
     protected override void Configure(IContainerBuilder builder)
     {
         base.Configure(builder);
 
-        builder.Register<ProcessFlowProvider>(Lifetime.Singleton);
+        // ProcessFlowProvider must be registered explicitly — RegisterProcessFlow depends on it.
+        // AsImplementedInterfaces() enables VContainer's automatic IDisposable.Dispose() call.
+        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+
+        builder.RegisterComponent(_levelPrefabs);
+
+        // AsImplementedInterfaces() lets VContainer call IInitializable.Initialize()
+        // and IDisposable.Dispose(). AsSelf() also allows resolving DemoManager by
+        // its concrete type if needed.
+        builder.Register<DemoManager>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+
+        // Registers Func<LoadLevelFlowArgs, LoadLevelFlow>
+        builder.RegisterProcessFlow<LoadLevelFlowArgs, LoadLevelFlow>(Lifetime.Singleton);
     }
 }
 ```
+
+`RegisterProcessFlow` calls `builder.RegisterFactory` internally. It resolves `ProcessFlowProvider` from the container and delegates to `provider.CreateProcessFlow<TArgs, TFlow>(args)` when the factory is invoked.
 
 ---
 
 ## Step 4 — Create and execute a flow
 
-Inject `ProcessFlowProvider` and call `CreateProcessFlow<TArgs, TFlow>`:
+Inject `Func<TArgs, TFlow>` directly — do not inject `ProcessFlowProvider` for flow creation. The caller owns a `CancellationTokenSource` and passes its token to `Execute`. Use `IInitializable` to create the token and `IDisposable` to cancel it:
 
 ```csharp
+using System;
+using System.Threading;
 using VContainer;
-using VGameKit.Runtime.Core;
+using VContainer.Unity;
 using VGameKit.Runtime.ProcessFlows;
 
-public class GameController : SubscribableConcrete
+public class DemoManager : IInitializable, IDisposable
 {
-    [Inject] private readonly ProcessFlowProvider _flowProvider;
+    [Inject] private readonly Func<LoadLevelFlowArgs, LoadLevelFlow> _loadLevelFlow;
 
-    public void StartLoadLevel(int levelIndex)
+    private CancellationTokenSource _cts;
+
+    public void Initialize()
     {
-        var args = new LoadLevelArgs
-        {
-            LevelIndex = levelIndex,
-            ShowLoadingScreen = true
-        };
+        _cts = new CancellationTokenSource();
+    }
 
-        var flow = _flowProvider.CreateProcessFlow<LoadLevelArgs, LoadLevelFlow>(args);
-        flow.Execute(flow.cancellationToken);
+    public void Dispose()
+    {
+        _cts?.Cancel();
+    }
+
+    public void LoadLevel(int levelIndex)
+    {
+        var args = new LoadLevelFlowArgs(levelIndex);
+        var flow = _loadLevelFlow(args);
+
+        flow.OnComplete(f =>
+        {
+            if (f is LoadLevelFlow lf)
+            {
+                Debug.Log($"Level {lf.Args.LevelIndex} loaded successfully.");
+            }
+        });
+
+        flow.Execute(_cts.Token);
     }
 }
 ```
 
-`CreateProcessFlow` handles `new()`, `Inject()`, `Initialize(args)`, and `AddProcessFlow()` in one call. The provider auto-removes and disposes the flow when it completes.
+Calling `_loadLevelFlow(args)` triggers `provider.CreateProcessFlow` which: creates a new instance via `new()`, injects dependencies, calls `Initialize(args)`, and registers the flow with `AddProcessFlow` so it is auto-removed on completion.
 
 ---
 
 ## Step 5 — Chain flows
 
-Use `AppendProcess` to run a second flow after the first finishes:
+There are two ways to chain flows. Choose based on where the sequencing responsibility belongs.
+
+### Option A — `AppendProcess` (caller-side chaining)
+
+The caller creates both flows and wires them together before executing. Appended flows run **sequentially** in the order they were added, after the preceding flow's `AsyncExecute` returns `this`. Each appended flow's `Execute` is called automatically by `ContinuationFunction`; you never call it manually.
 
 ```csharp
-var loadFlow  = _flowProvider.CreateProcessFlow<LoadLevelArgs, LoadLevelFlow>(loadArgs);
-var spawnFlow = _flowProvider.CreateProcessFlow<SpawnEnemiesArgs, SpawnEnemiesFlow>(spawnArgs);
+[Inject] private readonly Func<LoadLevelFlowArgs, LoadLevelFlow> _loadLevelFlow;
+[Inject] private readonly Func<SpawnEnemiesArgs, SpawnEnemiesFlow> _spawnEnemiesFlow;
 
-loadFlow.AppendProcess(spawnFlow);
-loadFlow.Execute(loadFlow.cancellationToken);
-// spawnFlow.Execute is called automatically after loadFlow completes
+public void StartLevel(int index)
+{
+    var loadFlow  = _loadLevelFlow(new LoadLevelFlowArgs(index));
+    var spawnFlow = _spawnEnemiesFlow(new SpawnEnemiesArgs());
+
+    loadFlow.AppendProcess(spawnFlow);
+    loadFlow.Execute(_cts.Token);
+    // Execution order: loadFlow.AsyncExecute → spawnFlow.AsyncExecute
+    // spawnFlow.Execute is called automatically — do not call it manually
+}
 ```
+
+Multiple flows can be appended to the same root flow; they execute one after another in append order:
+
+```csharp
+rootFlow.AppendProcess(secondFlow);
+rootFlow.AppendProcess(thirdFlow);
+rootFlow.Execute(_cts.Token);
+// Order: rootFlow → secondFlow → thirdFlow
+```
+
+### Option B — inline chaining inside `AsyncExecute`
+
+A flow creates and executes the next flow from within its own `AsyncExecute`. Use this when the sequencing is an internal implementation detail of the flow itself, not a concern of the caller.
+
+```csharp
+public class LoadLevelFlow : BaseProcessFlow<LoadLevelFlowArgs>
+{
+    [Inject] private readonly Func<SpawnEnemiesArgs, SpawnEnemiesFlow> _spawnEnemiesFlow;
+
+    public override async UniTask<IProcessFlow> AsyncExecute(CancellationToken ctx)
+    {
+        // ... level loading work ...
+
+        // Kick off the next flow inline and wait for it
+        var spawnFlow = _spawnEnemiesFlow(new SpawnEnemiesArgs());
+        spawnFlow.Execute(ctx);
+        await UniTask.WaitUntil(() => spawnFlow.IsCompleted, cancellationToken: ctx);
+
+        return this;
+    }
+}
+```
+
+The caller only creates and executes `LoadLevelFlow`; `SpawnEnemiesFlow` is hidden inside it. Use this pattern when the follow-up flow is always required by the first one and has no standalone use.
+
+**When to use which:**
+- `AppendProcess` — the caller decides the sequence; flows are reusable independently.
+- Inline `AsyncExecute` — the sequence is always fixed inside the flow; the caller does not need to know about it.
 
 ---
 
@@ -138,9 +225,9 @@ Register a callback before calling `Execute`:
 ```csharp
 flow.OnComplete(completedFlow =>
 {
-    GKLog.Log(LogState.Game, "Level loaded successfully.");
+    Debug.Log("Level loaded successfully.");
 });
-flow.Execute(flow.cancellationToken);
+flow.Execute(_cts.Token);
 ```
 
 ---
@@ -148,7 +235,9 @@ flow.Execute(flow.cancellationToken);
 ## Step 7 — Cancel a flow
 
 ```csharp
-// Cancel a specific type:
+// Cancel a specific type (inject ProcessFlowProvider for management operations):
+[Inject] private readonly ProcessFlowProvider _flowProvider;
+
 _flowProvider.RemoveProcessFlow<LoadLevelFlow>();
 
 // Cancel all running flows:
@@ -162,16 +251,23 @@ Calling `RemoveProcessFlow<T>` cancels the token, disposes the flow, and removes
 ## Flow lifecycle summary
 
 ```
-CreateProcessFlow  →  Initialize()  →  Execute()
-      ↓                                    ↓
-  AddProcessFlow                      AsyncExecute()
-                                           ↓
-                                    ContinuationFunction()
-                                    (appended flows run here)
-                                           ↓
-                                    onComplete callbacks
-                                           ↓
-                                    provider auto-removes & disposes
+RegisterProcessFlow  →  Func<TArgs, TFlow> injected into caller
+        ↓
+  factory(args) called
+        ↓
+  provider.CreateProcessFlow:
+    new TFlow()  →  Inject()  →  Initialize(args)  →  AddProcessFlow()
+        ↓
+  flow.Execute(_cts.Token)
+        ↓
+  AsyncExecute()
+        ↓
+  ContinuationFunction()
+  (appended flows run sequentially in append order)
+        ↓
+  onComplete callbacks
+        ↓
+  provider auto-removes & disposes
 ```
 
 ---

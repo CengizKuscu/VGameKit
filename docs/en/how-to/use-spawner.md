@@ -12,6 +12,8 @@ The VGameKit spawner provides a DI-friendly object pool built on `BaseSpawnPool<
 
 Create a plain class that implements `ISpawnItemModel`. Keep it a simple data container.
 
+> **Note:** The model does not need to contain any fields. An empty class that only implements `ISpawnItemModel` is valid — useful when an item needs no configuration data and the spawn event itself is the signal.
+
 ```csharp
 using VGameKit.Runtime.Spawner;
 
@@ -29,6 +31,7 @@ public class EnemyModel : ISpawnItemModel
 Create a MonoBehaviour that implements `ISpawnItem<TModel>`. Override `ReInitialize` to reset state on each reuse.
 
 ```csharp
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VGameKit.Runtime.Spawner;
 
@@ -40,8 +43,15 @@ public class EnemyItem : MonoBehaviour, ISpawnItem<EnemyModel>
     public void ReInitialize(EnemyModel model)
     {
         ItemModel = model;
-        // Reset visual/logic state here
-        // When the enemy dies, call ReleaseItem(this) to return it to the pool
+        // Reset visual/logic state here, then schedule release asynchronously if needed:
+        ReleaseItemAsync().AttachExternalCancellation(destroyCancellationToken).Forget();
+    }
+
+    private async UniTaskVoid ReleaseItemAsync()
+    {
+        // Example: wait for an animation or timer before returning to the pool
+        await UniTask.Delay(System.TimeSpan.FromSeconds(2f), cancellationToken: destroyCancellationToken);
+        ReleaseItem(this);
     }
 
     public void ReleaseItem(ISpawnItem item)
@@ -136,6 +146,8 @@ public class EnemySpawnController : SubscribableConcrete
     {
         var model = new EnemyModel { Health = 100, Speed = 3.5f };
         var enemy = _pool.GetItem(model, _enemyParent);
+        // GetItem automatically calls ReInitialize(model) on the retrieved item.
+        // Do not call ReInitialize manually after GetItem.
         GKLog.Log(LogState.Game, $"Spawned enemy: {enemy.name}");
     }
 

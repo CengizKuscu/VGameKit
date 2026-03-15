@@ -114,16 +114,6 @@ Unity paketi doğrudan GitHub'dan indirir. Hiçbir dosyanın elle kopyalanması 
 
 ---
 
-## Adım 5 — Derlemeyi doğrula
-
-```bash
-dotnet build VGameKit.slnx -c Debug
-```
-
-Sıfır uyarı beklenmektedir. Eğer derleme `GoogleMobileAds.dll` ile ilgili eksik referans hatası verirse, Google Mobile Ads paketinin External Dependency Manager aracılığıyla doğru çözümlendiğinden emin olun.
-
----
-
 ## Koşullu derleme sembolleri
 
 | Sembol | Kim tanımlar | Etkisi |

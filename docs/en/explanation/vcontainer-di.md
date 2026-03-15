@@ -27,12 +27,13 @@ AbsMainLifetimeScope  (app-level, lives for the whole session)
 
 `AbsMainLifetimeScope` is the root. It:
 
-1. Calls `builder.RegisterMessagePipe()` internally and stores the options in `_messagePipeOpts`.
-2. Exposes `_messagePipeOpts` to subclasses for registering additional pub/sub brokers.
+1. Calls `builder.RegisterMessagePipe()` internally.
 
-**Do not** call `RegisterMessagePipe()` again in your subclass — it must only be called once per container.
+**Do not** call `RegisterMessagePipe()` again in your subclass — it must only be called once per container. On Unity 2022.1+ with VContainer 1.14.0+, `IPublisher<T>` and `ISubscriber<T>` are resolved automatically after `RegisterMessagePipe()`; no additional broker registration is required.
 
 Child scopes inherit everything registered in a parent scope. A scene scope can resolve `ProcessFlowProvider` (registered in the app scope) without re-registering it.
+
+The reverse is not true: a parent scope has no visibility into its children. `AbsMainLifetimeScope` cannot resolve a presenter or pool that is only registered in a scene scope. This is intentional — the app scope outlives all scene scopes, so depending on something that may not exist yet (or may have been destroyed) would make the dependency graph unpredictable. Design accordingly: anything the app scope needs must be registered in the app scope itself.
 
 ---
 
@@ -93,8 +94,8 @@ builder.Register<MyAppManager>(Lifetime.Singleton)
     .AsImplementedInterfaces()
     .AsSelf();
 
-// Register a MonoBehaviour from the scene
-builder.RegisterComponentInHierarchy<MainMenuView>();
+// Register a MonoBehaviour from the scene (via [SerializeField] reference)
+builder.RegisterComponent(_mainMenuView);
 
 // Register a factory lambda
 builder.RegisterInstance<Func<EnemyModel, Transform, EnemyItem>>(

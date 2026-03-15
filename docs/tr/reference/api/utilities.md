@@ -67,6 +67,13 @@ bool notEqual = a != b;  // true  (HATA — false olmalı)
 public class SerializableVector3  // alanlar: public float x, y, z
 ```
 
+**Constructor'lar:**
+
+| Constructor | Açıklama |
+|---|---|
+| `SerializableVector3(float x, float y, float z)` | Ayrı bileşenlerden oluşturur |
+| `SerializableVector3(Vector3 vector3)` | Bir `UnityEngine.Vector3`'ten oluşturur |
+
 ```csharp
 public static class Vector3Extensions
 ```
@@ -130,13 +137,13 @@ public static class RandomExtensions
 | `Random(this int seed)` | `[0, 1)` aralığında float |
 | `TriangularRandom(this int seed, int min, int max, double weight)` | Üçgen dağılım |
 | `CumulativeRandom(this int seed, double[] values, double[] weights)` | Ağırlıklı kümülatif seçim |
-| `Roll(this int seed, int min, int max, int target, double weight)` | Hedef değere doğru ağırlıklı harmanlama |
+| `Roll(this int seed, int minValue, int maxValue, int targetValue, double weight)` | Hedef değere doğru ağırlıklı harmanlama |
 
 ```csharp
 int seed = 42;
-int roll = seed.Random(1, 7);          // 1d6
-float prob = seed.Random(0f, 1f);      // olasılık
-int biased = seed.Roll(1, 10, 5, 0.7); // 5'e doğru önyargılı
+int roll = seed.Random(1, 7);                    // 1d6
+float prob = seed.Random(0f, 1f);                // olasılık
+int biased = seed.Roll(1, 10, 5, 0.7);           // 5'e doğru önyargılı
 ```
 
 ---

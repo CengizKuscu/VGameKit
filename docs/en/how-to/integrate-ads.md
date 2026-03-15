@@ -52,32 +52,28 @@ Leave **Use Test Ads** checked during development; Google's hardcoded test IDs a
 
 ---
 
-## Step 3 — Register MessagePipe keyed subscriptions in the LifetimeScope
+## Step 3 — Register the controller in the LifetimeScope
 
-`GoogleMobileAdsController` uses `ISubscriber<AdsEventStatus, AdsEvent>` and `IPublisher<AdsEventStatus, AdsEvent>`. These must be registered in the app-level `AbsMainLifetimeScope`:
+`GoogleMobileAdsController` uses `ISubscriber<AdsEventStatus, AdsEvent>` and `IPublisher<AdsEventStatus, AdsEvent>`. On Unity 2022.1+ with VContainer 1.14.0+, keyed pub/sub pairs are resolved automatically — no `RegisterMessageBroker` call is needed.
 
 ```csharp
-using MessagePipe;
 using VContainer;
+using UnityEngine;
 using VGameKit.Runtime.Core;
-using VGameKit.GoogleAds.Runtime.Events;
+using VGameKit.GoogleAds.Runtime;
 
 public class AppLifetimeScope : AbsMainLifetimeScope
 {
+    [SerializeField] private GoogleMobileAdsController _adsController;
+
     protected override void Configure(IContainerBuilder builder)
     {
-        base.Configure(builder); // registers MessagePipe globally
+        base.Configure(builder);
 
-        var options = builder.RegisterMessagePipe();
-        builder.RegisterMessageBroker<AdsEventStatus, AdsEvent>(options);
-
-        // Register the controller as a component already in the scene
-        builder.RegisterComponentInHierarchy<GoogleMobileAdsController>();
+        builder.RegisterComponent(_adsController);
     }
 }
 ```
-
-> `AbsMainLifetimeScope.Configure` calls `builder.RegisterMessagePipe()` internally. Do not call it twice; use the returned `options` to register additional brokers.
 
 ---
 
@@ -163,7 +159,7 @@ public override void Subscriptions()
         .AddTo(_bagBuilder);
 
     _adsSubscriber
-        .Subscribe(AdsEventStatus.ResponseRewarded, e =>
+        .Subscribe(AdsEventStatus.ResponseEarnReward, e =>
         {
             GKLog.Log(LogState.Ads, "Rewarded earned");
             e.OnComplete?.Invoke();
@@ -181,7 +177,7 @@ public override void Subscriptions()
 | `Request` | Published by your code to request an ad show |
 | `ResponseOpened` | Ad started displaying |
 | `ResponseClosed` | Ad dismissed by the user |
-| `ResponseRewarded` | Rewarded ad grant confirmed |
+| `ResponseEarnReward` | Rewarded ad grant confirmed |
 | `ResponseFailed` | Ad failed to load or show |
 
 ---

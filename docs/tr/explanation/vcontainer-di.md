@@ -27,12 +27,13 @@ AbsMainLifetimeScope  (uygulama düzeyi, tüm oturum boyunca yaşar)
 
 `AbsMainLifetimeScope` köktür. Şunları yapar:
 
-1. `builder.RegisterMessagePipe()`'ı dahili olarak çağırır ve seçenekleri `_messagePipeOpts`'ta saklar.
-2. Alt sınıflara ek pub/sub broker'ları kaydetmeleri için `_messagePipeOpts`'u açar.
+1. `builder.RegisterMessagePipe()`'ı dahili olarak çağırır.
 
-Alt sınıfınızda `RegisterMessagePipe()`'ı **tekrar çağırmayın** — container başına yalnızca bir kez çağrılmalıdır.
+Alt sınıfınızda `RegisterMessagePipe()`'ı **tekrar çağırmayın** — container başına yalnızca bir kez çağrılmalıdır. Unity 2022.1+ ve VContainer 1.14.0+ ile `IPublisher<T>` ve `ISubscriber<T>`, `RegisterMessagePipe()` sonrasında otomatik olarak çözümlenir; ek broker kaydı gerekmez.
 
 Alt scope'lar, üst scope'ta kayıtlı her şeyi miras alır. Bir sahne scope'u, onu yeniden kaydetmek zorunda kalmadan `ProcessFlowProvider`'ı (uygulama scope'unda kayıtlı) çözebilir.
+
+Tersi geçerli değildir: üst scope, alt scope'larından hiçbirini göremez. `AbsMainLifetimeScope`, yalnızca bir sahne scope'unda kayıtlı olan bir presenter veya havuzu çözemez. Bu kasıtlı bir tasarım kararıdır — uygulama scope'u tüm sahne scope'larından daha uzun yaşar; henüz var olmayan ya da çoktan yok edilmiş olabilecek bir şeye bağımlı olmak bağımlılık grafiğini öngörülemez kılar. Buna göre tasarlayın: uygulama scope'unun ihtiyaç duyduğu her şey, uygulama scope'unun kendisine kaydedilmelidir.
 
 ---
 
@@ -93,8 +94,8 @@ builder.Register<MyAppManager>(Lifetime.Singleton)
     .AsImplementedInterfaces()
     .AsSelf();
 
-// Sahnedeki bir MonoBehaviour'u kaydet
-builder.RegisterComponentInHierarchy<MainMenuView>();
+// Sahnedeki bir MonoBehaviour'u kaydet ([SerializeField] referansı ile)
+builder.RegisterComponent(_mainMenuView);
 
 // Factory lambda kaydet
 builder.RegisterInstance<Func<EnemyModel, Transform, EnemyItem>>(

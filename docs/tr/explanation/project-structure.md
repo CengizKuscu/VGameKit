@@ -2,19 +2,36 @@
 
 ## Genel Bakış
 
-VGameKit, `Assets/` altında bağımsız Unity assembly definition paketleri kümesi olarak düzenlenmiştir. Her paket tek bir sorumluluğa sahiptir ve yalnızca ihtiyaç duyduğuna bağlıdır. Bu yapıyı anlamak, nereye kod ekleyeceğinizi, hangi assembly'lere referans vereceğinizi ve bir şey bozulduğunda nereye bakacağınızı bilmenizi sağlar.
+VGameKit, Package Manager Git URL'leri aracılığıyla yüklenen dört bağımsız Unity paketi olarak yayınlanmaktadır. Bir oyun projesine yüklendiğinde paketler `Library/PackageCache/` altına gelir — **`Assets/` altında herhangi bir klasör oluşturulmaz**. Demo dahil tüm kaynak kod yalnızca bu repoda bulunur ve son kullanıcılara görünmez.
 
 ---
 
-## Üst düzey yapı
+## Geliştiriciler VGameKit'i nasıl kullanır
+
+Geliştiriciler istedikleri paketleri projelerinin `Packages/manifest.json` dosyasına ekler:
+
+```json
+"com.cngz.vgamekit":           "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit#v0.0.4",
+"com.cngz.vgamekit.io":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.IO#v0.0.4",
+"com.cngz.vgamekit.ga":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GA#v0.0.4",
+"com.cngz.vgamekit.googleads": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GoogleAds#v0.0.4"
+```
+
+Unity bunları `Library/PackageCache/` altına çözümler. Paketler Package Manager penceresinde *In Project* bölümünde görünür; assembly'lerine kendi `.asmdef` dosyalarınızdan isimle referans verirsiniz. Bu repodan hiçbir şey geliştiricinin `Assets/` klasörü altında görünmez.
+
+---
+
+## Repository yapısı (yalnızca bu repo)
+
+Bu, kaynak reposudur. Aşağıdaki yapı yalnızca framework üzerinde çalışırken geçerlidir.
 
 ```
 Assets/
-├── VGameKit/           Core runtime — DI, menüler, popup'lar, spawner, flow'lar, loglama
-├── VGameKit.GA/        GameAnalytics entegrasyonu
-├── VGameKit.GoogleAds/ Google Mobile Ads entegrasyonu
-├── VGameKit.IO/        JSON kalıcılık yardımcıları
-└── Demo/               Örnek scope'lar ve sahneler; production build'lerde gönderilmez
+├── VGameKit/           Core runtime paket kaynağı
+├── VGameKit.GA/        GameAnalytics entegrasyon paketi kaynağı
+├── VGameKit.GoogleAds/ Google Mobile Ads entegrasyon paketi kaynağı
+├── VGameKit.IO/        JSON kalıcılık paketi kaynağı
+└── Demo/               Entegrasyon smoke-test; paket olarak yayınlanmaz
 
 docs/
 ├── en/                 İngilizce dokümantasyon (Diátaxis yapısı)
@@ -23,108 +40,60 @@ docs/
 
 ProjectSettings/        Unity tarafından yönetilir; elle düzenlemeyin
 Packages/               Unity Package Manager manifest ve kilit dosyaları
+scripts/                Geliştirici araçları (ör. publish_wiki.py)
 ```
 
 ---
 
-## VGameKit — Core runtime
+## Paket içerikleri
 
-```
-Assets/VGameKit/Runtime/
-├── App/
-│   └── AbsAppManager.cs          IAsyncStartable giriş noktası
-├── Config/
-│   └── GKConfig.cs               Ortam config'i için ScriptableObject
-├── Core/
-│   ├── AbsMainLifetimeScope.cs   Uygulama düzeyi DI kökü; MessagePipe'ı kaydeder
-│   ├── AbsBaseLifetimeScope.cs   Sahne/alt sistem scope tabanı
-│   ├── SubscribableConcrete.cs   IInitializable aracılığıyla düz-C# subscribable
-│   └── SubscribableMonoBehaviour.cs  [Inject] aracılığıyla MonoBehaviour subscribable
-├── Log/
-│   ├── GKLog.cs                  Statik loglama cephesi
-│   └── LogState.cs               Log seviyesi enum (Development, Game, Error, …)
-├── ProcessFlows/
-│   ├── BaseProcessFlow.cs        Asenkron, iptal edilebilir iş birimi
-│   ├── ProcessFlowProvider.cs    Aktif flow yaşam döngülerini yönetir
-│   ├── IFlowTask.cs              Senkron flow sözleşmesi (düşük seviye)
-│   └── IFlowAsyncTask.cs         Asenkron flow sözleşmesi (düşük seviye)
-├── UI/
-│   ├── Menu/
-│   │   ├── BaseMenuManager.cs    Açık panelleri takip eder; MenuMode'u uygular
-│   │   ├── BaseMenuPresenter.cs  Bir panel için mantık katmanı
-│   │   └── BaseMenuView.cs       Bir panel için görsel katman
-│   └── Popup/
-│       ├── PopupBuilder.cs       Akışkan popup oluşturma API'si
-│       ├── BasePopupModel.cs     Bir popup için tiplendirilmiş veri
-│       └── BasePopupView.cs      Bir popup için görsel katman
-├── Spawner/
-│   ├── BaseSpawnPool.cs          Genel nesne havuzu
-│   └── SpawnerExtensions.cs      Havuz yardımcı metotları
-└── Utilities/
-    └── MatrixId.cs               Bileşik tanımlayıcı değer tipi
-```
+### VGameKit — Core runtime
+
+| Sınıf | Sorumluluk |
+|---|---|
+| `AbsAppManager` | `IAsyncStartable` giriş noktası |
+| `AbsMainLifetimeScope` | Uygulama düzeyi DI kökü; MessagePipe'ı kaydeder |
+| `AbsBaseLifetimeScope` | Sahne/alt sistem scope tabanı |
+| `SubscribableConcrete` | `IInitializable` aracılığıyla düz-C# subscribable |
+| `SubscribableMonoBehaviour` | `[Inject]` aracılığıyla MonoBehaviour subscribable |
+| `GKLog` / `LogState` | Statik loglama cephesi + log seviyesi enum |
+| `BaseProcessFlow<TArgs>` | Asenkron, iptal edilebilir iş birimi |
+| `ProcessFlowProvider` | Aktif flow yaşam döngülerini yönetir |
+| `BaseMenuManager<TMenuName>` | Açık panelleri takip eder; `MenuMode`'u uygular |
+| `BaseSpawnPool<TModel, TItem>` | Genel nesne havuzu |
+| `GKConfig` | Ortam config'i için ScriptableObject |
+| `MatrixId` | Bileşik tanımlayıcı değer tipi |
 
 Core runtime, entegrasyon paketlerine (`VGameKit.GA`, `VGameKit.GoogleAds`) **hiçbir bağımlılığı yoktur**. Bu paketler core'a referans verir, tersi değil.
 
----
+### VGameKit.GoogleAds
 
-## VGameKit.GoogleAds
+Google Mobile Ads SDK'yı sarar. Temel sınıflar: `GoogleMobileAdsController`, `GoogleMobileAdsConsentController`, `AdsIds`, `BannerAds`, `InterstitialAds`, `RewardedAds`.
+`GOOGLEADS_TESTDEVICE` (test cihaz modu) ve Google Mobile Ads SDK varlığıyla korunur.
 
-```
-Assets/VGameKit.GoogleAds/Runtime/
-├── GoogleMobileAdsController.cs  Başlatma ve izin orkestrasyon
-├── GoogleMobileAdsConsentController.cs  UMP izin akışı
-├── AdsIds.cs                     Platform/test reklam birimi ID'leri
-├── BannerAds.cs
-├── InterstitialAds.cs
-└── RewardedAds.cs
+### VGameKit.GA
 
-Assets/VGameKit.GoogleAds/Editor/
-└── AdsIdsEditor.cs               AdsIds için özel Inspector
-```
+GameAnalytics SDK'yı sarar. Temel sınıf: `GA_Initialization`.
+`GA_ENABLED` ile korunur. Kod tabanındaki tüm GA event çağrıları `#if GA_ENABLED` içinde sarılıdır.
 
-`GOOGLEADS_TESTDEVICE` (test cihaz modunu zorlar) ile korunur ve normal Google Mobile Ads SDK varlığıyla etkinleştirilir.
+### VGameKit.IO
 
----
-
-## VGameKit.GA
-
-```
-Assets/VGameKit.GA/Runtime/
-└── GA_Initialization.cs          GameAnalytics SDK bootstrap
-```
-
-`GA_ENABLED` ile korunur. Kod tabanındaki diğer tüm GA event çağrıları `#if GA_ENABLED` içinde sarılıdır.
-
----
-
-## VGameKit.IO
-
-```
-Assets/VGameKit.IO/Runtime/
-└── JSonKit.cs                    JSON okuma/yazma yardımcıları (Newtonsoft)
-```
-
+JSON yardımcıları. Temel sınıf: `JSonKit` (Newtonsoft destekli okuma/yazma).
 Kayıt oyunu kalıcılığı ve config serileştirme için kullanılır.
 
 ---
 
-## Demo
+## Demo (yalnızca bu repository)
 
-```
-Assets/Demo/
-├── Runtime/                      Örnek LifetimeScope'lar ve controller'lar
-└── Scenes/
-    └── SampleScene.unity         Birincil smoke-test sahnesi
-```
+`Assets/Demo/`, yalnızca bu repoda bulunur — paket olarak yayınlanmaz ve son kullanıcılara hiçbir zaman görünmez. Yalnızca tüm framework sistemlerinin doğru entegre olduğunu doğrulamak için mevcuttur.
 
-Demo kodu, herhangi bir production asmdef'in parçası değildir. Tüm sistemlerin doğru entegre olduğunu doğrulamak için vardır. `Assets/Demo/Scenes/SampleScene.unity`'deki sahne, `AGENTS.md`'de referans verilen kanonik Play-Mode smoke test'idir.
+`Assets/Demo/Scenes/SampleScene.unity`'deki sahne, `AGENTS.md`'de referans verilen kanonik Play-Mode smoke test'idir.
 
 ---
 
 ## Namespace kuralları
 
-| Assembly | Namespace öneki |
+| Paket | Namespace öneki |
 |---|---|
 | `VGameKit` (core) | `VGameKit.Runtime.*` |
 | `VGameKit.IO` | `VGameKit.IO.Runtime` |
@@ -137,7 +106,7 @@ Demo kodu, herhangi bir production asmdef'in parçası değildir. Tüm sistemler
 
 ## Kaçınılması gerekenler
 
-- **Script'leri doğrudan `Assets/` köküne eklemek**: kodu her zaman bir asmdef sınırı içine yerleştirin.
+- **Tüketen projelerde `Assets/` altında VGameKit klasörü beklemek**: paketler `Library/PackageCache/` altındadır — paket kaynağını `Assets/` altına kopyalamayın.
 - **Core'dan entegrasyon assembly'lerine referans vermek**: core bağımsız kalmalıdır.
 - **`ProjectSettings/` veya `Packages/manifest.json`'ı elle düzenlemek**: Unity Editor veya Package Manager UI kullanın.
 - **`VGameKit.Runtime`'a oyuna özgü mantık yerleştirmek**: core'u genel tutun; uygulama düzeyi alt sınıflarında özelleştirin.

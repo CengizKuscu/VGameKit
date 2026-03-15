@@ -12,6 +12,8 @@ VGameKit spawner, `BaseSpawnPool<TModel, TItem>` üzerine inşa edilmiş DI uyum
 
 `ISpawnItemModel`'i uygulayan sıradan bir sınıf oluşturun. Basit bir veri konteyneri olarak tutun.
 
+> **Not:** Modelin hiç field içermesi zorunlu değildir. Yalnızca `ISpawnItemModel`'i uygulayan boş bir sınıf da geçerlidir — öğenin yapılandırma verisi gerektirmediği ve spawn sinyalinin kendisinin yeterli olduğu durumlarda kullanışlıdır.
+
 ```csharp
 using VGameKit.Runtime.Spawner;
 
@@ -29,6 +31,7 @@ public class EnemyModel : ISpawnItemModel
 `ISpawnItem<TModel>`'i uygulayan bir MonoBehaviour oluşturun. Her yeniden kullanımda durumu sıfırlamak için `ReInitialize`'ı override edin.
 
 ```csharp
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VGameKit.Runtime.Spawner;
 
@@ -40,8 +43,15 @@ public class EnemyItem : MonoBehaviour, ISpawnItem<EnemyModel>
     public void ReInitialize(EnemyModel model)
     {
         ItemModel = model;
-        // Görsel/mantık durumunu burada sıfırlayın
-        // Düşman öldüğünde havuza geri döndürmek için ReleaseItem(this) çağrısı yapın
+        // Görsel/mantık durumunu burada sıfırlayın; gerekirse asenkron olarak serbest bırakmayı planlayın:
+        ReleaseItemAsync().AttachExternalCancellation(destroyCancellationToken).Forget();
+    }
+
+    private async UniTaskVoid ReleaseItemAsync()
+    {
+        // Örnek: havuza geri döndürmeden önce animasyon veya zamanlayıcı bekle
+        await UniTask.Delay(System.TimeSpan.FromSeconds(2f), cancellationToken: destroyCancellationToken);
+        ReleaseItem(this);
     }
 
     public void ReleaseItem(ISpawnItem item)
@@ -136,6 +146,8 @@ public class EnemySpawnController : SubscribableConcrete
     {
         var model = new EnemyModel { Health = 100, Speed = 3.5f };
         var enemy = _pool.GetItem(model, _enemyParent);
+        // GetItem, alınan öğe üzerinde otomatik olarak ReInitialize(model) çağırır.
+        // GetItem sonrasında ReInitialize'ı manuel çağırmayın.
         GKLog.Log(LogState.Game, $"Spawned enemy: {enemy.name}");
     }
 

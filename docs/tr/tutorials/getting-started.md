@@ -68,7 +68,7 @@ public class MyAppLifetimeScope : AbsMainLifetimeScope
 
 ## Adım 4 — App Manager oluşturun
 
-`AbsAppManager`'dan kalıtım alan `MyAppManager`'ı oluşturun:
+`AbsAppManager`'dan kalıtım alan `MyAppManager`'ı oluşturun. İki abstract metodu override edin — `StartAsync`'ı **override etmeyin**, bu metod concrete ve sealed'dir:
 
 ```csharp
 using System.Threading;
@@ -78,15 +78,20 @@ using VGameKit.Runtime.Log;
 
 public class MyAppManager : AbsAppManager
 {
-    public override async UniTask StartAsync(CancellationToken cancellation)
+    protected override async UniTask InitializeGame(CancellationToken token)
     {
-        GKLog.Log(LogState.Game, "MyAppManager: Uygulama başladı.");
+        GKLog.Log(LogState.Game, "MyAppManager: Oyun başlatılıyor...");
         await UniTask.CompletedTask;
+    }
+
+    protected override void OnAppReady(AppReadyEvent @event)
+    {
+        GKLog.Log(LogState.Game, "MyAppManager: Uygulama hazır.");
     }
 }
 ```
 
-VContainer, `StartAsync`'ı `IAsyncStartable` aracılığıyla otomatik olarak çağırır — manuel olarak çağırmayın.
+VContainer, `StartAsync`'ı `IAsyncStartable` aracılığıyla otomatik olarak çağırır. `StartAsync`, `InitializeGame`'i çağırır, ardından `AppReadyEvent` yayınlar; bu da `OnAppReady`'yi tetikler. Bu metotların hiçbirini manuel olarak çağırmayın.
 
 ---
 
@@ -100,7 +105,8 @@ VContainer, `StartAsync`'ı `IAsyncStartable` aracılığıyla otomatik olarak �
 Konsolda şunu görmelisiniz:
 
 ```
-[Game] MyAppManager: Uygulama başladı.
+[Game] MyAppManager: Oyun başlatılıyor...
+[Game] MyAppManager: Uygulama hazır.
 ```
 
 ---
@@ -118,7 +124,7 @@ VGameKit, ortam değerlerini `GKConfig` ScriptableObject'lerinde saklar.
 ## Ne Öğrendiniz
 
 - `AbsMainLifetimeScope` ile VGameKit'in DI container'ını nasıl başlatacağınızı.
-- `AbsAppManager` / `IAsyncStartable`'ın güvenli bir async giriş noktası sağladığını.
+- `AbsAppManager`'ın `InitializeGame` ve `OnAppReady` metodlarını doğru override noktaları olarak sunduğunu.
 - `GAMEKIT_LOG` derleme sembolüyle `GKLog` çıktısını nasıl etkinleştireceğinizi.
 - `GKConfig` ScriptableObject'lerinin ortama özgü verileri nasıl tuttuğunu.
 

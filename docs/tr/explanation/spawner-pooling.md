@@ -14,10 +14,10 @@ Object pooling, önceden oluşturulmuş sabit sayıda örneği yeniden kullanara
 
 ```
 BaseSpawnPool<TModel, TItem>
-├── _factory: Func<TModel, Transform, TItem>   yeni örnekler oluşturur
-├── _poolRoot: Transform                        pooled GameObject'ler için üst
-├── _available: Stack<TItem>                   yeniden kullanıma hazır etkin olmayan öğeler
-└── _active: List<TItem>                       şu anda aktif öğeler
+├── _spawnFunc: Func<TModel, Transform, TItem>   yeni örnekler oluşturur
+├── _poolTarget: Transform                        pooled GameObject'ler için üst
+├── _inactiveItems: Queue<TItem>                 yeniden kullanıma hazır etkin olmayan öğeler
+└── _activeItems: List<TItem>                    şu anda aktif öğeler
 ```
 
 ### Factory kalıbı
@@ -25,38 +25,39 @@ BaseSpawnPool<TModel, TItem>
 Havuz, `Instantiate`'ı doğrudan çağırmaz. Inject edilmiş bir factory'ye devreder:
 
 ```csharp
-Func<EnemyModel, Transform, EnemyItem> factory =
+Func<EnemyModel, Transform, EnemyItem> spawnFunc =
     (model, parent) => Object.Instantiate(prefab, parent);
 ```
 
-Bu, havuzun kendisini test edilebilir ve prefab referanslarından bağımsız tutar. Factory, LifetimeScope'ta kayıtlıdır ve VContainer tarafından inject edilir — havuz asla `Resources.Load` veya sahne referansları kullanmaz.
+Bu, havuzun kendisini test edilebilir ve prefab referanslarından bağımsız tutar. Factory, LifetimeScope'ta kayıtlıdır ve VContainer tarafından `_spawnFunc` olarak inject edilir — havuz asla `Resources.Load` veya sahne referansları kullanmaz.
 
 ---
 
 ## Spawn yaşam döngüsü
 
 ```
-Spawn(model)
-    _available dolu ise:
-        öğeyi _available'dan al
-        item.Initialize(model)         ← yeni kullanım için yeniden yapılandır
+GetItem(model, parent)
+    _inactiveItems dolu ise:
+        öğeyi _inactiveItems'tan al (dequeue)
+        item.ReInitialize(model)       ← yeni kullanım için yeniden yapılandır
         item.gameObject.SetActive(true)
-        _active'e ekle
+        _activeItems'a ekle
+    willGrow etkin ve _inactiveItems boş ise:
+        _spawnFunc(model, parent) çağır  ← yalnızca havuz tükendiğinde tahsis et
+        _activeItems'a ekle
     değilse:
-        _factory(model, _poolRoot) çağır ← yalnızca havuz tükenendeye tahsis et
-        _active'e ekle
+        InvalidOperationException fırlat
 
-Recycle(item)
-    item.Recycle()                     ← çağıran "işim bitti" sinyali verir
+ReleaseItem(item)
     item.gameObject.SetActive(false)
-    _active → _available arasında taşı
+    _poolTarget'a yeniden ebeveynle
+    _activeItems → _inactiveItems arasında taşı  ← sonraki GetItem için hazır
 
-RecycleAll()
-    _active içindeki her öğeyi geri dönüştür
+HideAllObjects()
+    _activeItems içindeki her öğeyi serbest bırak  ← tümünü devre dışı bırakır, yok etmez
 
 Dispose()
-    RecycleAll()
-    tüm GameObject'leri yok et
+    RemoveAllObjects()               ← HideAllObjects()'i çağırır, ardından yok eder
     her iki koleksiyonu da temizle
 ```
 
@@ -68,26 +69,29 @@ Her poolable öğe iki metodu uygular:
 
 | Metod | Ne zaman çağrılır | Amaç |
 |---|---|---|
-| `Initialize(model)` | Spawn'da | Öğeye yeni yapılandırma uygula |
-| `Recycle()` | Geri dönüşümde | İç durumu sıfırla; devre dışı bırak |
+| `ReInitialize(model)` | `GetItem` içinde | Öğeye yeni yapılandırma uygula; tüm durumu sıfırla |
+| `ReleaseItem(this)` | Öğenin kendi içinden | Öğeyi havuzuna geri döndür; devre dışı bırakmayı tetikler |
 
-`Initialize`, hem yeni hem de yeniden kullanılan örneklerde çağrılır, bu nedenle öğeler kendilerini modelden tamamen sıfırlamalıdır — önceki kullanımdan taşınan durumu asla varsaymayın.
+`ReInitialize`, hem yeni hem de yeniden kullanılan örneklerde çağrılır; bu nedenle öğeler kendilerini modelden tamamen sıfırlamalıdır — önceki kullanımdan taşınan durumu asla varsaymayın. `GetItem`, `ReInitialize`'ı otomatik olarak çağırır; çağıranlar `GetItem` sonrasında tekrar çağırmamalıdır.
 
 ---
 
-## Scoped yaşam süresi ve disposal
+## Yaşam süresi ve disposal
 
-Havuzlar `Lifetime.Scoped` olarak kaydedilir. VContainer, scope sona erdiğinde (sahne kaldırma, uygulama kapanma) `Dispose()`'u otomatik olarak çağırır. Bu, manuel temizlik gerektirmeden kalan tüm GameObject'leri yok eder.
+`Lifetime.Scoped` olarak kayıtlı havuzlarda VContainer, scope sona erdiğinde (sahne kaldırma, uygulama kapanma) `Dispose()`'u otomatik olarak çağırır. Bu, manuel temizlik gerektirmeden kalan tüm GameObject'leri yok eder.
 
-`Lifetime.Singleton` olarak kaydetmek, sahne yüklemeleri arasında sızan GameObject'lere yol açar. Bir sahneye bağlı havuzlar için her zaman `Lifetime.Scoped` kullanın.
+`Lifetime.Singleton` olarak kayıtlı havuzlar sahne yüklemeleri boyunca devam eder. Singleton bir havuz sahneye özgü nesneler için kullanılıyorsa, sahne sona erdiğinde `Dispose()`'u manuel olarak çağırın ya da bunun yerine `Lifetime.Scoped` kullanın.
+
+`Lifetime.Singleton` kullanmak ve açıkça dispose etmemek, sahne yüklemeleri arasında GameObject sızmasına yol açar.
 
 ---
 
 ## Kaçınılması gerekenler
 
-- **Oyun mantığı içinde `Instantiate` çağırmak**: tüm oluşturmayı havuz üzerinden yönlendirin.
-- **Geri dönüştürülmüş öğelere referans tutmak**: `Recycle()` sonrasında öğe herhangi bir zamanda farklı bir çağırana verilebilir.
-- **`Initialize`'da nesne yeniden oluşturmak**: `Initialize` yeniden yapılandırmalı, tahsis etmemeli. `Initialize` `Instantiate` çağırıyorsa, sızdıran bir havuzunuz var demektir.
+- **Oyun mantığı içinde `Instantiate` çağırmak**: tüm oluşturmayı `GetItem` aracılığıyla havuz üzerinden yönlendirin.
+- **Serbest bırakılmış öğelere referans tutmak**: `ReleaseItem` sonrasında öğe herhangi bir zamanda farklı bir çağırana verilebilir.
+- **`ReInitialize`'da nesne yeniden oluşturmak**: `ReInitialize` yeniden yapılandırmalı, tahsis etmemeli. `ReInitialize` `Instantiate` çağırıyorsa, sızdıran bir havuzunuz var demektir.
+- **`GetItem` sonrasında `ReInitialize`'ı manuel çağırmak**: `GetItem` zaten çağırır — iki kez çağırmak çift başlatma hatalarına yol açar.
 - **Statik havuzlar**: statik durum sahne yüklemelerinde devam eder ve eski referanslar üretir.
 
 ---

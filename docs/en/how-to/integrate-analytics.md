@@ -35,15 +35,19 @@ Scene hierarchy:
 
 ```csharp
 using VContainer;
+using UnityEngine;
 using VGameKit.Runtime.Core;
+using GameAnalyticsSDK;
 
 public class AppLifetimeScope : AbsMainLifetimeScope
 {
+    [SerializeField] private GA_Initialization _gaInitialization;
+
     protected override void Configure(IContainerBuilder builder)
     {
         base.Configure(builder);
 
-        builder.RegisterComponentInHierarchy<GA_Initialization>();
+        builder.RegisterComponent(_gaInitialization);
     }
 }
 ```

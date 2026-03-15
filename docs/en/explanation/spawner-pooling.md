@@ -14,10 +14,10 @@ Object pooling solves this by reusing a fixed set of pre-created instances. An o
 
 ```
 BaseSpawnPool<TModel, TItem>
-├── _factory: Func<TModel, Transform, TItem>   creates new instances
-├── _poolRoot: Transform                        parent for pooled GameObjects
-├── _available: Stack<TItem>                   inactive items ready to reuse
-└── _active: List<TItem>                       currently live items
+├── _spawnFunc: Func<TModel, Transform, TItem>   creates new instances
+├── _poolTarget: Transform                        parent for pooled GameObjects
+├── _inactiveItems: Queue<TItem>                 inactive items ready to reuse
+└── _activeItems: List<TItem>                    currently live items
 ```
 
 ### The factory pattern
@@ -25,38 +25,39 @@ BaseSpawnPool<TModel, TItem>
 The pool does not call `Instantiate` directly. It delegates to an injected factory:
 
 ```csharp
-Func<EnemyModel, Transform, EnemyItem> factory =
+Func<EnemyModel, Transform, EnemyItem> spawnFunc =
     (model, parent) => Object.Instantiate(prefab, parent);
 ```
 
-This keeps the pool itself testable and free of prefab references. The factory is registered in the LifetimeScope and injected by VContainer — the pool never uses `Resources.Load` or scene references.
+This keeps the pool itself testable and free of prefab references. The factory is registered in the LifetimeScope and injected by VContainer as `_spawnFunc` — the pool never uses `Resources.Load` or scene references.
 
 ---
 
 ## Spawn lifecycle
 
 ```
-Spawn(model)
-    if _available is not empty:
-        pop item from _available
-        item.Initialize(model)         ← re-configure for new use
+GetItem(model, parent)
+    if _inactiveItems is not empty:
+        dequeue item from _inactiveItems
+        item.ReInitialize(model)       ← re-configure for new use
         item.gameObject.SetActive(true)
-        add to _active
+        add to _activeItems
+    else if willGrow:
+        call _spawnFunc(model, parent)  ← allocate only when pool is exhausted
+        add to _activeItems
     else:
-        call _factory(model, _poolRoot) ← allocate only when pool is exhausted
-        add to _active
+        throw InvalidOperationException
 
-Recycle(item)
-    item.Recycle()                     ← caller signals "I'm done"
+ReleaseItem(item)
     item.gameObject.SetActive(false)
-    move from _active → _available
+    reparent to _poolTarget
+    move from _activeItems → _inactiveItems  ← ready for next GetItem
 
-RecycleAll()
-    recycle every item in _active
+HideAllObjects()
+    release every item in _activeItems  ← deactivates all, does not destroy
 
 Dispose()
-    RecycleAll()
-    destroy all GameObjects
+    RemoveAllObjects()                  ← calls HideAllObjects(), then destroys
     clear both collections
 ```
 
@@ -68,26 +69,29 @@ Every poolable item implements two methods:
 
 | Method | Called when | Purpose |
 |---|---|---|
-| `Initialize(model)` | On spawn | Apply fresh configuration to the item |
-| `Recycle()` | On recycle | Reset internal state; deactivate |
+| `ReInitialize(model)` | Inside `GetItem` | Apply fresh configuration to the item; reset all state |
+| `ReleaseItem(this)` | From within the item | Return the item to its pool; triggers deactivation |
 
-`Initialize` is called on both new and reused instances, so items must fully reset themselves from the model — never assume state carried over from a previous use.
+`ReInitialize` is called on both new and reused instances, so items must fully reset themselves from the model — never assume state carried over from a previous use. `GetItem` calls `ReInitialize` automatically; callers must not call it again after `GetItem`.
 
 ---
 
-## Scoped lifetime and disposal
+## Lifetime and disposal
 
-Pools are registered as `Lifetime.Scoped`. VContainer calls `Dispose()` automatically when the scope ends (scene unload, app shutdown). This destroys all remaining GameObjects without requiring manual cleanup.
+Pools registered as `Lifetime.Scoped` have `Dispose()` called automatically by VContainer when the scope ends (scene unload, app shutdown). This destroys all remaining GameObjects without requiring manual cleanup.
 
-Registering as `Lifetime.Singleton` risks leaked GameObjects across scene loads. Always use `Lifetime.Scoped` for pools tied to a scene.
+Pools registered as `Lifetime.Singleton` persist across scene loads. If a singleton pool is used for scene-specific objects, call `Dispose()` manually when the scene ends, or use `Lifetime.Scoped` instead.
+
+Registering as `Lifetime.Singleton` without explicit disposal risks leaking GameObjects across scene loads.
 
 ---
 
 ## What to avoid
 
-- **Calling `Instantiate` inside game logic**: route all creation through the pool.
-- **Holding references to recycled items**: after `Recycle()`, the item may be given to a different caller at any time.
-- **Re-creating objects on `Initialize`**: `Initialize` should reconfigure, not allocate. If `Initialize` calls `Instantiate`, you have a pool that leaks.
+- **Calling `Instantiate` inside game logic**: route all creation through the pool via `GetItem`.
+- **Holding references to released items**: after `ReleaseItem`, the item may be given to a different caller at any time.
+- **Re-creating objects in `ReInitialize`**: `ReInitialize` should reconfigure, not allocate. If `ReInitialize` calls `Instantiate`, you have a pool that leaks.
+- **Calling `ReInitialize` manually after `GetItem`**: `GetItem` already calls it — calling it twice produces double-initialization bugs.
 - **Static pools**: static state survives scene loads and produces stale references.
 
 ---

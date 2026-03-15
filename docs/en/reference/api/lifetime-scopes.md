@@ -76,7 +76,7 @@ Extends `AbsBaseLifetimeScope` with application-level setup: frame rate, logging
 
 | Type | Name | Description |
 |---|---|---|
-| `MessagePipeOptions` | `_messagePipeOpts` | Holds the registered MessagePipe options; available to subclasses |
+| `MessagePipeOptions` | `_messagePipeOpts` | Holds the registered MessagePipe options; available to subclasses if needed (e.g. for configuring options) |
 
 ### Configure
 
@@ -94,7 +94,7 @@ protected override void Configure(IContainerBuilder builder)
 }
 ```
 
-`builder.RegisterMessagePipe()` registers the MessagePipe DI infrastructure. All `IPublisher<T>` / `ISubscriber<T>` pairs used throughout the app must be resolved from the same container that called this.
+`builder.RegisterMessagePipe()` registers the MessagePipe DI infrastructure. On Unity 2022.1+ with VContainer 1.14.0+, all `IPublisher<T>` / `ISubscriber<T>` pairs are resolved automatically from this container — no additional `RegisterMessageBroker` calls are needed.
 
 ---
 
@@ -109,8 +109,8 @@ public sealed class AppLifetimeScope : AbsMainLifetimeScope
     {
         base.Configure(builder);
         // Register app-level singletons
-        builder.Register<AppManager>(Lifetime.Singleton).AsImplementedInterfaces();
-        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsSelf();
+        builder.Register<AppManager>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
     }
 }
 ```

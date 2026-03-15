@@ -67,6 +67,13 @@ bool notEqual = a != b; // true  (BUG — should be false)
 public class SerializableVector3  // fields: public float x, y, z
 ```
 
+**Constructors:**
+
+| Constructor | Description |
+|---|---|
+| `SerializableVector3(float x, float y, float z)` | Constructs from individual components |
+| `SerializableVector3(Vector3 vector3)` | Constructs from a `UnityEngine.Vector3` |
+
 ```csharp
 public static class Vector3Extensions
 ```
@@ -130,13 +137,13 @@ public static class RandomExtensions
 | `Random(this int seed)` | Float in `[0, 1)` |
 | `TriangularRandom(this int seed, int min, int max, double weight)` | Triangular distribution |
 | `CumulativeRandom(this int seed, double[] values, double[] weights)` | Weighted cumulative selection |
-| `Roll(this int seed, int min, int max, int target, double weight)` | Weighted blend toward target value |
+| `Roll(this int seed, int minValue, int maxValue, int targetValue, double weight)` | Weighted blend toward target value |
 
 ```csharp
 int seed = 42;
-int roll = seed.Random(1, 7);          // 1d6
-float prob = seed.Random(0f, 1f);      // probability
-int biased = seed.Roll(1, 10, 5, 0.7); // biased toward 5
+int roll = seed.Random(1, 7);                    // 1d6
+float prob = seed.Random(0f, 1f);                // probability
+int biased = seed.Roll(1, 10, 5, 0.7);           // biased toward 5
 ```
 
 ---

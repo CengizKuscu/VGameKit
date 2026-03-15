@@ -2,19 +2,36 @@
 
 ## Overview
 
-VGameKit is organised as a set of independent Unity assembly definition packages under `Assets/`. Each package has a single concern and depends only on what it needs. Understanding this layout helps you know where to add code, which assemblies to reference, and where to look when something breaks.
+VGameKit is published as four independent Unity packages installed via Package Manager Git URLs. When installed into a game project, packages live in `Library/PackageCache/` — **no folders are created under `Assets/`**. The full source, including the Demo, exists only in this repository and is not visible to end users.
 
 ---
 
-## Top-level layout
+## How developers use VGameKit
+
+Developers add the desired packages to their project's `Packages/manifest.json`:
+
+```json
+"com.cngz.vgamekit":           "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit#v0.0.4",
+"com.cngz.vgamekit.io":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.IO#v0.0.4",
+"com.cngz.vgamekit.ga":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GA#v0.0.4",
+"com.cngz.vgamekit.googleads": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GoogleAds#v0.0.4"
+```
+
+Unity resolves them into `Library/PackageCache/`. Packages appear in the Package Manager window under *In Project* and their assemblies are referenced by name in the developer's own `.asmdef` files. Nothing from this repository appears under the developer's `Assets/` folder.
+
+---
+
+## Repository layout (this repo only)
+
+This is the source repository. The layout below is only relevant when working on the framework itself.
 
 ```
 Assets/
-├── VGameKit/           Core runtime — DI, menus, popups, spawner, flows, logging
-├── VGameKit.GA/        GameAnalytics integration
-├── VGameKit.GoogleAds/ Google Mobile Ads integration
-├── VGameKit.IO/        JSON persistence helpers
-└── Demo/               Example scopes and scenes; not shipped in production builds
+├── VGameKit/           Core runtime package source
+├── VGameKit.GA/        GameAnalytics integration package source
+├── VGameKit.GoogleAds/ Google Mobile Ads integration package source
+├── VGameKit.IO/        JSON persistence package source
+└── Demo/               Integration smoke-test; not published as a package
 
 docs/
 ├── en/                 English documentation (Diátaxis layout)
@@ -23,108 +40,60 @@ docs/
 
 ProjectSettings/        Unity-managed; do not hand-edit
 Packages/               Unity Package Manager manifest and lock files
+scripts/                Developer tooling (e.g. publish_wiki.py)
 ```
 
 ---
 
-## VGameKit — Core runtime
+## Package contents
 
-```
-Assets/VGameKit/Runtime/
-├── App/
-│   └── AbsAppManager.cs          IAsyncStartable entry point
-├── Config/
-│   └── GKConfig.cs               ScriptableObject for environment config
-├── Core/
-│   ├── AbsMainLifetimeScope.cs   App-level DI root; registers MessagePipe
-│   ├── AbsBaseLifetimeScope.cs   Scene/subsystem scope base
-│   ├── SubscribableConcrete.cs   Plain-C# subscribable via IInitializable
-│   └── SubscribableMonoBehaviour.cs  MonoBehaviour subscribable via [Inject]
-├── Log/
-│   ├── GKLog.cs                  Static logging facade
-│   └── LogState.cs               Log level enum (Development, Game, Error, …)
-├── ProcessFlows/
-│   ├── BaseProcessFlow.cs        Async, cancellable unit of work
-│   ├── ProcessFlowProvider.cs    Manages active flow lifecycles
-│   ├── IFlowTask.cs              Sync flow contract (low-level)
-│   └── IFlowAsyncTask.cs         Async flow contract (low-level)
-├── UI/
-│   ├── Menu/
-│   │   ├── BaseMenuManager.cs    Tracks open panels; enforces MenuMode
-│   │   ├── BaseMenuPresenter.cs  Logic layer for one panel
-│   │   └── BaseMenuView.cs       Visual layer for one panel
-│   └── Popup/
-│       ├── PopupBuilder.cs       Fluent popup construction API
-│       ├── BasePopupModel.cs     Typed data for one popup
-│       └── BasePopupView.cs      Visual layer for one popup
-├── Spawner/
-│   ├── BaseSpawnPool.cs          Generic object pool
-│   └── SpawnerExtensions.cs      Pool utility helpers
-└── Utilities/
-    └── MatrixId.cs               Composite identifier value type
-```
+### VGameKit — Core runtime
 
-The core runtime has **no dependency** on the integration packages (`VGameKit.GA`, `VGameKit.GoogleAds`). Those packages reference the core, not the other way around.
+| Class | Responsibility |
+|---|---|
+| `AbsAppManager` | `IAsyncStartable` entry point |
+| `AbsMainLifetimeScope` | App-level DI root; registers MessagePipe |
+| `AbsBaseLifetimeScope` | Scene/subsystem scope base |
+| `SubscribableConcrete` | Plain-C# subscribable via `IInitializable` |
+| `SubscribableMonoBehaviour` | MonoBehaviour subscribable via `[Inject]` |
+| `GKLog` / `LogState` | Static logging facade + log level enum |
+| `BaseProcessFlow<TArgs>` | Async, cancellable unit of work |
+| `ProcessFlowProvider` | Manages active flow lifecycles |
+| `BaseMenuManager<TMenuName>` | Tracks open panels; enforces `MenuMode` |
+| `BaseSpawnPool<TModel, TItem>` | Generic object pool |
+| `GKConfig` | ScriptableObject for environment config |
+| `MatrixId` | Composite identifier value type |
 
----
+The core runtime has **no dependency** on the integration packages (`VGameKit.GA`, `VGameKit.GoogleAds`). Those packages reference core, not the other way around.
 
-## VGameKit.GoogleAds
+### VGameKit.GoogleAds
 
-```
-Assets/VGameKit.GoogleAds/Runtime/
-├── GoogleMobileAdsController.cs  Initialisation and consent orchestration
-├── GoogleMobileAdsConsentController.cs  UMP consent flow
-├── AdsIds.cs                     Platform/test ad unit IDs
-├── BannerAds.cs
-├── InterstitialAds.cs
-└── RewardedAds.cs
+Wraps Google Mobile Ads SDK. Key classes: `GoogleMobileAdsController`, `GoogleMobileAdsConsentController`, `AdsIds`, `BannerAds`, `InterstitialAds`, `RewardedAds`.
+Guarded by `GOOGLEADS_TESTDEVICE` (test device mode) and the presence of the Google Mobile Ads SDK.
 
-Assets/VGameKit.GoogleAds/Editor/
-└── AdsIdsEditor.cs               Custom Inspector for AdsIds
-```
+### VGameKit.GA
 
-Guarded by `GOOGLEADS_TESTDEVICE` (forces test device mode) and activated by regular Google Mobile Ads SDK presence.
+Wraps GameAnalytics SDK. Key class: `GA_Initialization`.
+Guarded by `GA_ENABLED`. All GA event calls elsewhere are wrapped in `#if GA_ENABLED`.
 
----
+### VGameKit.IO
 
-## VGameKit.GA
-
-```
-Assets/VGameKit.GA/Runtime/
-└── GA_Initialization.cs          GameAnalytics SDK bootstrap
-```
-
-Guarded by `GA_ENABLED`. All GA event calls elsewhere in the codebase are wrapped in `#if GA_ENABLED`.
-
----
-
-## VGameKit.IO
-
-```
-Assets/VGameKit.IO/Runtime/
-└── JSonKit.cs                    JSON read/write helpers (Newtonsoft)
-```
-
+JSON helpers. Key class: `JSonKit` (Newtonsoft-backed read/write).
 Used for save-game persistence and config serialisation.
 
 ---
 
-## Demo
+## Demo (this repository only)
 
-```
-Assets/Demo/
-├── Runtime/                      Example LifetimeScopes and controllers
-└── Scenes/
-    └── SampleScene.unity         Primary smoke-test scene
-```
+`Assets/Demo/` is part of this repository only — it is not published as a package and is never visible to end users. It exists solely to verify that all framework systems integrate correctly.
 
-Demo code is not part of any production asmdef. It exists to verify that all systems integrate correctly. The scene at `Assets/Demo/Scenes/SampleScene.unity` is the canonical Play-Mode smoke test referenced in `AGENTS.md`.
+The scene at `Assets/Demo/Scenes/SampleScene.unity` is the canonical Play-Mode smoke test referenced in `AGENTS.md`.
 
 ---
 
 ## Namespace conventions
 
-| Assembly | Namespace prefix |
+| Package | Namespace prefix |
 |---|---|
 | `VGameKit` (core) | `VGameKit.Runtime.*` |
 | `VGameKit.IO` | `VGameKit.IO.Runtime` |
@@ -137,7 +106,7 @@ Game-specific code in `Demo/` uses its own namespace (e.g., `VGameKit.Demo`). Do
 
 ## What to avoid
 
-- **Adding scripts directly to `Assets/` root**: always place code inside an asmdef boundary.
+- **Expecting any VGameKit folders under `Assets/` in consumer projects**: all packages live in `Library/PackageCache/` — do not copy package source into `Assets/`.
 - **Referencing integration assemblies from core**: core must remain independent.
 - **Hand-editing `ProjectSettings/` or `Packages/manifest.json`**: use Unity Editor or the Package Manager UI.
 - **Placing game-specific logic in `VGameKit.Runtime`**: keep core generic; customise in app-level subclasses.

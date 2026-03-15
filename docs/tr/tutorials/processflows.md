@@ -16,17 +16,19 @@ Her flow kendi argüman tipini taşır.
 ```csharp
 using VGameKit.Runtime.ProcessFlows;
 
-public class ValidateSaveArgs : BaseProcessFlowArgs
+// IProcessFlowArgs arayüzünü doğrudan implement edin — BaseProcessFlowArgs bir struct'tır
+// ve kalıtım alınamaz. Yalnızca girdi gerektirmeyen flow'larda typed boş değer olarak kullanın.
+public class ValidateSaveArgs : IProcessFlowArgs
 {
     public string SaveSlot;
 }
 
-public class LoadAssetsArgs : BaseProcessFlowArgs
+public class LoadAssetsArgs : IProcessFlowArgs
 {
     public string[] BundleNames;
 }
 
-public class ShowHUDArgs : BaseProcessFlowArgs { }
+public class ShowHUDArgs : IProcessFlowArgs { }
 ```
 
 ---
@@ -103,7 +105,9 @@ public class ShowHUDFlow : BaseProcessFlow<ShowHUDArgs>
 
 ---
 
-## Adım 5 — ProcessFlowProvider'ı kaydedin
+## Adım 5 — Flow'ları LifetimeScope'a kaydedin
+
+Her flow için `Func<TArgs, TFlow>` fabrikası kaydetmek amacıyla `RegisterProcessFlow<TArgs, TFlow>` kullanın. `ProcessFlowProvider`'ın da açıkça kaydedilmesi zorunludur — `RegisterProcessFlow` dahili olarak `container.Resolve<ProcessFlowProvider>()` çağırır; provider container'da yoksa çalışma zamanında hata alınır.
 
 ```csharp
 using VContainer;
@@ -115,7 +119,16 @@ public class GameLifetimeScope : AbsMainLifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         base.Configure(builder);
-        builder.Register<ProcessFlowProvider>(Lifetime.Singleton);
+
+        // ProcessFlowProvider önce kaydedilmeli — RegisterProcessFlow ona bağımlıdır.
+        // AsImplementedInterfaces(), VContainer'ın IDisposable.Dispose()'u otomatik çağırmasını sağlar.
+        builder.Register<ProcessFlowProvider>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
+
+        // Her çağrı bir Func<TArgs, TFlow> fabrikası kaydeder
+        builder.RegisterProcessFlow<ValidateSaveArgs, ValidateSaveFlow>(Lifetime.Singleton);
+        builder.RegisterProcessFlow<LoadAssetsArgs, LoadAssetsFlow>(Lifetime.Singleton);
+        builder.RegisterProcessFlow<ShowHUDArgs, ShowHUDFlow>(Lifetime.Singleton);
+
         builder.Register<GameStarter>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
     }
 }
@@ -125,7 +138,11 @@ public class GameLifetimeScope : AbsMainLifetimeScope
 
 ## Adım 6 — Flow'ları zincirleyin ve çalıştırın
 
+`Func<TArgs, TFlow>` fabrikalarını doğrudan inject edin — flow oluşturma için `ProcessFlowProvider`'ı inject etmeyin. Çağıran sınıf bir `CancellationTokenSource` yönetir ve token'ı `Execute`'a geçirir. `GameStarter`, `SubscribableConcrete`'i genişlettiğinden `_cts`'yi `Init()`'te oluşturun ve `Dispose()`'u override ederek iptal edin:
+
 ```csharp
+using System;
+using System.Threading;
 using VContainer;
 using VGameKit.Runtime.Core;
 using VGameKit.Runtime.Log;
@@ -133,23 +150,29 @@ using VGameKit.Runtime.ProcessFlows;
 
 public class GameStarter : SubscribableConcrete
 {
-    [Inject] private readonly ProcessFlowProvider _flowProvider;
+    [Inject] private readonly Func<ValidateSaveArgs, ValidateSaveFlow> _validateFlow;
+    [Inject] private readonly Func<LoadAssetsArgs, LoadAssetsFlow> _loadFlow;
+    [Inject] private readonly Func<ShowHUDArgs, ShowHUDFlow> _hudFlow;
+
+    private CancellationTokenSource _cts;
 
     protected override void Init()
     {
+        _cts = new CancellationTokenSource();
         StartSequence();
+    }
+
+    public override void Dispose()
+    {
+        _cts?.Cancel();
+        base.Dispose();
     }
 
     private void StartSequence()
     {
-        var validateFlow = _flowProvider.CreateProcessFlow<ValidateSaveArgs, ValidateSaveFlow>(
-            new ValidateSaveArgs { SaveSlot = "slot_0" });
-
-        var loadFlow = _flowProvider.CreateProcessFlow<LoadAssetsArgs, LoadAssetsFlow>(
-            new LoadAssetsArgs { BundleNames = new[] { "ui", "audio" } });
-
-        var hudFlow = _flowProvider.CreateProcessFlow<ShowHUDArgs, ShowHUDFlow>(
-            new ShowHUDArgs());
+        var validateFlow = _validateFlow(new ValidateSaveArgs { SaveSlot = "slot_0" });
+        var loadFlow     = _loadFlow(new LoadAssetsArgs { BundleNames = new[] { "ui", "audio" } });
+        var hudFlow      = _hudFlow(new ShowHUDArgs());
 
         // Zincirle: validate → load → hud
         validateFlow.AppendProcess(loadFlow);
@@ -158,7 +181,7 @@ public class GameStarter : SubscribableConcrete
         hudFlow.OnComplete(_ =>
             GKLog.Log(LogState.Game, "GameStarter: başlangıç sekansı tamamlandı."));
 
-        validateFlow.Execute(validateFlow.cancellationToken);
+        validateFlow.Execute(_cts.Token);
     }
 }
 ```
@@ -183,11 +206,31 @@ Play Mode'a girin. Konsol çıktısı sırayla görünmeli:
 
 ## Adım 8 — Sekans ortasında iptal edin
 
-Bir iptali simüle etmek için (ör. oyuncu bağlantısı kesildi):
+`GameStarter`'da mevcut olan `CancellationTokenSource` üzerinden `_cts.Cancel()` çağrısı yaparak tüm zinciri anında iptal edebilirsiniz:
 
 ```csharp
-_flowProvider.RemoveProcessFlow<LoadAssetsFlow>();
-// Bekleyen tüm eklenmiş flow'lar da iptal edilir.
+// Seçenek A — CancellationTokenSource üzerinden tüm zinciri iptal et (GameStarter'da mevcut):
+_cts.Cancel();
+// Zincirdeki tüm flow'lar eş zamanlı iptal sinyali alır.
+```
+
+Yalnızca belirli bir flow tipini iptal etmek için `ProcessFlowProvider`'ı ayrı bir yönetici sınıfa inject edin:
+
+```csharp
+// Seçenek B — ProcessFlowProvider üzerinden belirli bir flow tipini iptal et:
+public class GameController : IInitializable, IDisposable
+{
+    [Inject] private readonly ProcessFlowProvider _flowProvider;
+
+    public void Initialize() { }
+    public void Dispose() { }
+
+    public void AbortLoading()
+    {
+        _flowProvider.RemoveProcessFlow<LoadAssetsFlow>();
+        // Bekleyen tüm eklenmiş flow'lar da iptal edilir.
+    }
+}
 ```
 
 ---
@@ -197,7 +240,7 @@ _flowProvider.RemoveProcessFlow<LoadAssetsFlow>();
 - Karmaşık sekansları ayrı, tek sorumluluğa sahip flow'lara nasıl böleceğinizi.
 - `AppendProcess`'in sıkı bağlantı olmadan flow'ları nasıl zincirlediğini.
 - `OnComplete`'in flow'u değiştirmeden çağıranların tepki vermesini nasıl sağladığını.
-- `RemoveProcessFlow<T>`'nin temiz sekans ortası iptali nasıl sağladığını.
+- `CancellationTokenSource`'un tüm zinciri nasıl iptal ettiğini; `RemoveProcessFlow<T>`'nin `ProcessFlowProvider` üzerinden belirli bir flow tipini nasıl iptal ettiğini.
 
 ---
 
