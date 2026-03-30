@@ -65,3 +65,45 @@ Google Mobile Ads integration. Supports Banner, Interstitial, and Rewarded ads w
 ```
 
 [Reference](https://github.com/CengizKuscu/VGameKit/wiki/en-Reference-Google-Ads) · [Integration Guide](https://github.com/CengizKuscu/VGameKit/wiki/en-HowTo-Integrate-Ads)
+
+---
+
+## AI Assistant (MCP Server)
+
+`vgamekit-mcp` is an MCP server that gives AI tools (Claude Code, Cursor, etc.) direct access to VGameKit documentation and code patterns. Instead of guessing API signatures or copy-pasting from the wiki, your AI assistant can search and retrieve accurate, up-to-date information automatically.
+
+**What it provides:**
+
+| Tool | Description |
+|------|-------------|
+| `search_docs` | Semantic search across all documentation ("how do I register a service") |
+| `get_doc` | Retrieve the full content of a specific documentation page |
+| `list_docs` | List all pages, optionally filtered by category |
+| `search_code_patterns` | Semantic search over C# code examples ("create a process flow") |
+| `get_known_bugs` | Return the list of known bugs and anti-patterns |
+
+No API keys required. Semantic search uses a local model (`all-MiniLM-L6-v2`, ~90 MB downloaded once on first use).
+
+### Installation
+
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/). Add the following to your project's `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "vgamekit": {
+      "command": "uvx",
+      "args": ["vgamekit-mcp"]
+    }
+  }
+}
+```
+
+Restart your AI tool. On first run the embedding model is downloaded (~90 MB, one time only).
+
+### Example queries
+
+- *"How do I register a service in VGameKit?"*
+- *"Show me how to use AbsAppManager."*
+- *"Give me a code example for creating a process flow."*
+- *"What are the known bugs in VGameKit?"*
