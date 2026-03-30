@@ -1,0 +1,267 @@
+[
+  {
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "summary": "Unity's `MonoBehaviour` coroutines are convenient but have significant limitations: they cannot return values, error handling is awkward, and they do not compose. The standard `System.Threading.Tasks.Task` works, but it allocates on the heap for each continuation and integrates poorly with Unity's single-threaded game loop.",
+    "related": [
+      "reference/api/processflows",
+      "reference/api/app-manager",
+      "tutorials/processflows"
+    ]
+  },
+  {
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "summary": "In a Unity project with many interacting systems, direct method calls between components create tight coupling. A `ScoreManager` that calls `UIManager.UpdateScore()` directly cannot exist without `UIManager`, cannot be tested in isolation, and breaks if `UIManager` is refactored.",
+    "related": [
+      "reference/api/subscribable",
+      "./vcontainer-di",
+      "reference/api/app-manager"
+    ]
+  },
+  {
+    "doc_id": "explanation/project-structure",
+    "title": "Explanation: Project Structure",
+    "category": "explanation",
+    "summary": "VGameKit is published as four independent Unity packages installed via Package Manager Git URLs. When installed into a game project, packages live in `Library/PackageCache/` — **no folders are created under `Assets/`**. The full source, including the Demo, exists only in this repository and is not visible to end users.",
+    "related": [
+      "reference/api/lifetime-scopes",
+      "./vcontainer-di",
+      "AGENTS"
+    ]
+  },
+  {
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "summary": "`Instantiate` and `Destroy` are expensive in Unity. Each call allocates memory, triggers garbage collection, and involves the physics and rendering subsystems. For frequently created objects — enemies, projectiles, particles — this produces frame-rate spikes.",
+    "related": [
+      "reference/api/spawner",
+      "how-to/use-spawner",
+      "tutorials/spawner-basics",
+      "./vcontainer-di"
+    ]
+  },
+  {
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "summary": "VGameKit is built around **VContainer**, a fast, allocation-friendly DI container designed for Unity. DI is not an optional convenience here — it is the structural backbone. Every service, presenter, pool, and flow is wired through the container. Understanding why helps you extend the framework without fighting it.",
+    "related": [
+      "reference/api/lifetime-scopes",
+      "reference/api/subscribable",
+      "reference/api/app-manager",
+      "./messagepipe-events"
+    ]
+  },
+  {
+    "doc_id": "how-to/configure-logging",
+    "title": "How to Configure Logging",
+    "category": "how-to",
+    "summary": "VGameKit's logging system is controlled by `GKConfig` (a `ScriptableObject`) and `GKLog` (a static utility). Log output is compiled away entirely unless the `GAMEKIT_LOG` scripting define symbol is present. This guide covers creating the config asset, choosing log levels, and adding log calls in code.",
+    "related": [
+      "reference/api/logging",
+      "reference/api/configuration"
+    ]
+  },
+  {
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "summary": "This guide shows how to add a new full-screen or overlay menu using the VGameKit menu system. The system requires five pieces: an **enum identifier**, a **View** (MonoBehaviour + prefab), **MenuData**, a **Presenter**, and a **Manager**.",
+    "related": [
+      "reference/api/menu-system",
+      "reference/api/lifetime-scopes",
+      "reference/api/subscribable"
+    ]
+  },
+  {
+    "doc_id": "how-to/install-modules",
+    "title": "How to Install VGameKit Modules",
+    "category": "how-to",
+    "summary": "VGameKit is split into four assembly-definition modules. Each module has its own package dependencies. This guide walks through adding them to a Unity 6 project.",
+    "related": [
+      "reference/api/logging",
+      "reference/api/configuration",
+      "reference/api/lifetime-scopes"
+    ]
+  },
+  {
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "summary": "This guide walks through adding `VGameKit.GoogleAds` to a Unity project, configuring ad unit IDs, wiring consent, requesting ads via MessagePipe, and reacting to ad events.",
+    "related": [
+      "reference/api/google-ads",
+      "reference/api/app-manager",
+      "reference/api/lifetime-scopes"
+    ]
+  },
+  {
+    "doc_id": "how-to/integrate-analytics",
+    "title": "How to Integrate GameAnalytics",
+    "category": "how-to",
+    "summary": "This guide covers adding `VGameKit.GA` to a Unity project, configuring the GameAnalytics SDK, initialising it at startup, and sending events.",
+    "related": [
+      "reference/api/game-analytics",
+      "reference/api/app-manager",
+      "./install-modules"
+    ]
+  },
+  {
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "summary": "Process flows are discrete, cancellable, async units of work. `BaseProcessFlow<TArgs>` handles execution, chaining, cancellation, and completion callbacks. `ProcessFlowProvider` owns the lifecycle of all running flows.",
+    "related": [
+      "reference/api/processflows",
+      "reference/api/lifetime-scopes",
+      "reference/api/logging"
+    ]
+  },
+  {
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "summary": "The VGameKit spawner provides a DI-friendly object pool built on `BaseSpawnPool<TModel, TItem>`. Items are reused rather than destroyed. This guide shows how to define a pool, wire it through VContainer, and spawn/release items at runtime.",
+    "related": [
+      "reference/api/spawner",
+      "reference/api/lifetime-scopes"
+    ]
+  },
+  {
+    "doc_id": "reference/api/app-manager",
+    "title": "AbsAppManager — App Manager Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.App` **Assembly:** `VGameKit.Runtime` **File:** `Assets/VGameKit/Runtime/App/AbsAppManager.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/configuration",
+    "title": "GKConfig — Configuration Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.Config` **Assembly:** `VGameKit.Runtime` **File:** `Assets/VGameKit/Runtime/Config/GKConfig.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/game-analytics",
+    "title": "GameAnalytics Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.GA.Runtime` **Assembly:** `VGameKit.GA.Runtime` **File:** `Assets/VGameKit.GA/Runtime/GA_Initialization.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.GoogleAds.Runtime` **Assembly:** `VGameKit.GoogleAds.Runtime` **Files:** `Assets/VGameKit.GoogleAds/Runtime/`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/jsonkit",
+    "title": "JSonKit Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.IO.Runtime` **Assembly:** `VGameKit.IO.Runtime` **File:** `Assets/VGameKit.IO/Runtime/JSonKit.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/lifetime-scopes",
+    "title": "Lifetime Scopes Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.Core` **Assembly:** `VGameKit.Runtime` **Files:** - `Assets/VGameKit/Runtime/Core/AbsBaseLifetimeScope.cs` - `Assets/VGameKit/Runtime/Core/AbsMainLifetimeScope.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/logging",
+    "title": "GKLog — Logging Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.Log` **Assembly:** `VGameKit.Runtime` **File:** `Assets/VGameKit/Runtime/Log/GKLog.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.UI.Menu` **Assembly:** `VGameKit.Runtime` **Files:** `Assets/VGameKit/Runtime/UI/Menu/`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/popup-system",
+    "title": "Popup System Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.UI.Popup` **Assembly:** `VGameKit.Runtime` **Files:** `Assets/VGameKit/Runtime/UI/Popup/`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.ProcessFlows` **Assembly:** `VGameKit.Runtime` **Files:** `Assets/VGameKit/Runtime/ProcessFlows/`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.Spawner` **Assembly:** `VGameKit.Runtime` **Files:** `Assets/VGameKit/Runtime/Spawner/`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/subscribable",
+    "title": "Subscribable System Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.Core` **Assembly:** `VGameKit.Runtime` **Files:** - `Assets/VGameKit/Runtime/Core/ISubscribableObject.cs` - `Assets/VGameKit/Runtime/Core/SubscribableConcrete.cs` - `Assets/VGameKit/Runtime/Core/SubscribableMonoBehaviour.cs`",
+    "related": []
+  },
+  {
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "summary": "**Namespace:** `VGameKit.Runtime.Utilities` / `VGameKit.Runtime.Utilities.Camera` **Assembly:** `VGameKit.Runtime` **Files:** `Assets/VGameKit/Runtime/Utilities/`",
+    "related": []
+  },
+  {
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "summary": "A minimal two-screen game: a **Main Menu** that transitions into a **HUD** screen. You will wire a menu manager, a process flow, and a spawner, and see all three cooperate via VContainer DI.",
+    "related": []
+  },
+  {
+    "doc_id": "tutorials/getting-started",
+    "title": "Tutorial: Getting Started with VGameKit",
+    "category": "tutorial",
+    "summary": "By the end of this tutorial you will have a minimal Unity scene with a VGameKit `AppManager` running, producing log output, and ready to host further VGameKit systems.",
+    "related": []
+  },
+  {
+    "doc_id": "tutorials/processflows",
+    "title": "Tutorial: Learning Process Flows",
+    "category": "tutorial",
+    "summary": "A three-step game-start sequence — **validate save**, **load assets**, **show HUD** — where each step is a separate `BaseProcessFlow`, they run in order, each is cancellable, and the result is displayed in the Console.",
+    "related": []
+  },
+  {
+    "doc_id": "tutorials/spawner-basics",
+    "title": "Tutorial: Spawner Basics",
+    "category": "tutorial",
+    "summary": "An enemy pool that instantiates prefabs on demand, recycles them when they are no longer needed, and cleans up automatically when the scene scope is destroyed.",
+    "related": []
+  },
+  {
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "summary": "A two-panel UI (Main Menu + Settings), a confirmation popup, and the wiring that makes them work together via `BaseMenuManager`, `BaseMenuPresenter`, and the popup builder.",
+    "related": []
+  },
+  {
+    "doc_id": "home",
+    "title": "VGameKit",
+    "category": "home",
+    "summary": "A modular Unity framework for streamlined game development. See [How to Install Modules](how-to/install-modules.md) to get started.",
+    "related": []
+  }
+]

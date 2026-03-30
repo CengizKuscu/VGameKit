@@ -11,10 +11,10 @@ VGameKit, Package Manager Git URL'leri aracılığıyla yüklenen dört bağıms
 Geliştiriciler istedikleri paketleri projelerinin `Packages/manifest.json` dosyasına ekler:
 
 ```json
-"com.cngz.vgamekit":           "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit#v0.0.4",
-"com.cngz.vgamekit.io":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.IO#v0.0.4",
-"com.cngz.vgamekit.ga":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GA#v0.0.4",
-"com.cngz.vgamekit.googleads": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GoogleAds#v0.0.4"
+"com.cngz.vgamekit":           "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit#v0.0.5",
+"com.cngz.vgamekit.io":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.IO#v0.0.5",
+"com.cngz.vgamekit.ga":        "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GA#v0.0.5",
+"com.cngz.vgamekit.googleads": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit.GoogleAds#v0.0.5"
 ```
 
 Unity bunları `Library/PackageCache/` altına çözümler. Paketler Package Manager penceresinde *In Project* bölümünde görünür; assembly'lerine kendi `.asmdef` dosyalarınızdan isimle referans verirsiniz. Bu repodan hiçbir şey geliştiricinin `Assets/` klasörü altında görünmez.

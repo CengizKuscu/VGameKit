@@ -8,7 +8,7 @@
 
 ## Genel Bakış
 
-`JSonKit`, dosya tabanlı JSON kalıcılığı için `Newtonsoft.Json` (`JsonConvert`) sarmalayan statik bir yardımcı sınıftır. Tüm Unity platformlarında tiplendirilmiş veri kaydetme ve yükleme için tutarlı bir API sunar; Android'deki `StreamingAssets` yolları için özel işlem sağlar.
+`JSonKit`, dosya tabanlı JSON kalıcılığı için `Newtonsoft.Json` (`JsonConvert`) sarmalayan statik bir yardımcı sınıftır. Tüm Unity platformlarında tiplendirilmiş veri kaydetme ve yükleme için tutarlı bir API sunar; Android'deki `StreamingAssets` yolları `UnityWebRequest` ve UniTask ile non-blocking olarak işlenir.
 
 ---
 
@@ -42,7 +42,6 @@ public static void Save<T>(string filePath, T value, Formatting formatting = For
 | `formatting` | `Formatting` | JSON çıktı biçimlendirmesi |
 
 ```csharp
-// Oyuncu verisini kaydet
 JSonKit.Save(
     Path.Combine(Application.persistentDataPath, "save.json"),
     new PlayerData { Score = 1500, Level = 3 });
@@ -50,10 +49,10 @@ JSonKit.Save(
 
 ---
 
-### `Load<T>`
+### `LoadAsync<T>`
 
 ```csharp
-public static T Load<T>(string filePath)
+public static async UniTask<T> LoadAsync<T>(string filePath, CancellationToken token)
 ```
 
 `filePath`'deki dosyayı okur ve `T`'ye seri halden çıkarır.
@@ -64,10 +63,11 @@ public static T Load<T>(string filePath)
 | Parametre | Tip | Açıklama |
 |---|---|---|
 | `filePath` | `string` | JSON dosyasına giden yol |
+| `token` | `CancellationToken` | İptal token'ı |
 
 ```csharp
-var data = JSonKit.Load<PlayerData>(
-    Path.Combine(Application.persistentDataPath, "save.json"));
+var data = await JSonKit.LoadAsync<PlayerData>(
+    Path.Combine(Application.persistentDataPath, "save.json"), token);
 
 if (data != null)
 {
@@ -77,33 +77,23 @@ if (data != null)
 
 ---
 
-### `ReadAllText`
+### `ReadAllTextAsync`
 
 ```csharp
-public static string ReadAllText(string filePath)
+public static async UniTask<string> ReadAllTextAsync(string filePath, CancellationToken token)
 ```
 
-Platform duyarlı dosya okuyucu:
+Platform duyarlı async dosya okuyucu:
 
 | Platform | Uygulama |
 |---|---|
-| `UNITY_EDITOR` | `File.ReadAllText(filePath)` |
-| `UNITY_IOS` | `File.ReadAllText(filePath)` |
-| `UNITY_ANDROID` | `ReadAllTextOnAndroid(filePath)` — aşağıdaki nota bakın |
+| `UNITY_ANDROID` | URI yolları için `UnityWebRequest` + `await`; yerel yollar için `File.ReadAllText` |
 | Diğer | `File.ReadAllText(filePath)` |
 
----
-
-### `ReadAllTextOnAndroid` *(özel)*
-
-```csharp
-private static string ReadAllTextOnAndroid(string filePath)
-```
-
-- `filePath` `"://"` içeriyorsa (yani bir streaming assets URI ise): Ana iş parçacığını **bloke eden meşgul bekleme döngüsü** (`while (!www.isDone) {}`) ile kullanım dışı `WWW` sınıfını kullanır.
-- Aksi hâlde: `File.ReadAllText(filePath)`.
-
-> **Bilinen sorun:** `WWW` tabanlı yol Unity ana iş parçacığını bloke eder. Android'de streaming assets için bunun yerine `async/await` veya coroutine ile `UnityWebRequest` kullanın. Bu sorun mevcut kod tabanında mevcuttur ve değiştirilmesi adaydır.
+| Parametre | Tip | Açıklama |
+|---|---|---|
+| `filePath` | `string` | Okunacak yol veya URI |
+| `token` | `CancellationToken` | İptal token'ı |
 
 ---
 
@@ -111,6 +101,8 @@ private static string ReadAllTextOnAndroid(string filePath)
 
 ```csharp
 using System.IO;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VGameKit.IO.Runtime;
 using Newtonsoft.Json;
@@ -133,9 +125,9 @@ public static class SettingsManager
         JSonKit.Save(FilePath, settings, Formatting.Indented);
     }
 
-    public static GameSettings Load()
+    public static async UniTask<GameSettings> LoadAsync(CancellationToken token)
     {
-        return JSonKit.Load<GameSettings>(FilePath) ?? new GameSettings();
+        return await JSonKit.LoadAsync<GameSettings>(FilePath, token) ?? new GameSettings();
     }
 }
 ```

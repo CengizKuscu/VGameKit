@@ -81,7 +81,7 @@ namespace VGameKit.GoogleAds.Runtime
         public string GetBannerId(bool useTestAds)
         {
 #if UNITY_ANDROID
-            return useTestAds ? drdTestBannerId : drdBannerId;
+            return useTestAds ? drdTestBannerId : androidBannerId;
 #elif UNITY_IPHONE
             return useTestAds ? iosTestBannerId : iosBannerId;
 #else
@@ -97,7 +97,7 @@ namespace VGameKit.GoogleAds.Runtime
         public string GetInterstitialId(bool useTestAds)
         {
 #if UNITY_ANDROID
-            return useTestAds ? drdTestInterstitialId : drdInterstitialId;
+            return useTestAds ? drdTestInterstitialId : androidInterstitialId;
 #elif UNITY_IPHONE
             return useTestAds ? iosTestInterstitialId : iosInterstitialId;
 #else
@@ -113,7 +113,7 @@ namespace VGameKit.GoogleAds.Runtime
         public string GetRewardedId(bool useTestAds)
         {
 #if UNITY_ANDROID
-            return useTestAds ? drdTestRewardedId : drdRewardedId;
+            return useTestAds ? drdTestRewardedId : androidRewardedId;
 #elif UNITY_IPHONE
             return useTestAds ? iosTestRewardedId : iosRewardedId;
 #else

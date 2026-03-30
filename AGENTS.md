@@ -133,14 +133,6 @@ Args with data: implement `IProcessFlowArgs` directly as a class. `BaseProcessFl
 ## IO & Config
 Environment values → `GKConfig` ScriptableObjects. JSON persistence → `JSonKit`. Mark Unity fields `[SerializeField] private`; avoid public fields on non-POCO types.
 
-## Known Bugs (Do Not Propagate)
-1. **`MatrixId.!=`** — body identical to `==`; returns `true` when IDs are equal. Fix: negate.
-2. **`AdsIds` Android non-test** — references undeclared `drd*Id` fields (`android*Id` are the real ones); compile error without `GOOGLEADS_TESTDEVICE`.
-3. **`GoogleMobileAdsConsentController.GatherConsent`** — `WaitUntil` predicate `() => _initializeResult == None` is inverted; should be `!= None`.
-4. **`JSonKit.ReadAllTextOnAndroid`** — deprecated `WWW` + main-thread busy-wait; replace with `UnityWebRequest` + UniTask.
-5. **`RewardedAds.ResponseOpened`** — `onResponseAdEvent` only fires inside `#if GA_ENABLED`; silently dropped otherwise.
-6. **`RewardedAds.RemoveListeners`** — nulls the entire static delegate, wiping all external subscribers.
-
 ## Documentation
 Edit `docs/en/*` and `docs/tr/*` together. `python3 scripts/publish_wiki.py --dry-run` must output **63 pages, 0 errors**. Record new modules in `README.md` and `docs/PLAN.md`. Document every new public API, DI binding, or menu/spawner contract in both language folders.
 

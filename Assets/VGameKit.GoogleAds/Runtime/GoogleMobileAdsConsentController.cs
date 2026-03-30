@@ -189,7 +189,7 @@ namespace VGameKit.GoogleAds.Runtime
                 });
             });
 
-            await UniTask.WaitUntil(() => _initializeResult == CustomConsentStatus.None, cancellationToken: token)
+            await UniTask.WaitUntil(() => _initializeResult != CustomConsentStatus.None, cancellationToken: token)
                 .AttachExternalCancellation(token).SuppressCancellationThrow();
 
             Debug.Log($"##### GoogleAds Consent Initialize Complete");

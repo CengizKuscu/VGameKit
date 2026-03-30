@@ -1,7 +1,9 @@
 {
     "name": "VGameKit.IO.Runtime",
     "rootNamespace": "VGameKit.IO.Runtime",
-    "references": [],
+    "references": [
+        "UniTask"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

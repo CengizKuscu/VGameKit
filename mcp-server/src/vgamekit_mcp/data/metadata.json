@@ -1,0 +1,1213 @@
+[
+  {
+    "chunk_id": "explanation/async-patterns#0",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": ""
+  },
+  {
+    "chunk_id": "explanation/async-patterns#1",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": "Why UniTask instead of Task or coroutines"
+  },
+  {
+    "chunk_id": "explanation/async-patterns#2",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": "UniTask vs UniTaskVoid"
+  },
+  {
+    "chunk_id": "explanation/async-patterns#3",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": "CancellationToken propagation"
+  },
+  {
+    "chunk_id": "explanation/async-patterns#4",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": "Awaiting Unity events"
+  },
+  {
+    "chunk_id": "explanation/async-patterns#5",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": "Error handling in async flows"
+  },
+  {
+    "chunk_id": "explanation/async-patterns#6",
+    "doc_id": "explanation/async-patterns",
+    "title": "Explanation: Async Patterns with UniTask",
+    "category": "explanation",
+    "heading": "What to avoid"
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#0",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": ""
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#1",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": "Why event-driven communication"
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#2",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": "How VGameKit integrates MessagePipe"
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#3",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": "Publishing and subscribing"
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#4",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": "Message types"
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#5",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": "Lifecycle and leak prevention"
+  },
+  {
+    "chunk_id": "explanation/messagepipe-events#6",
+    "doc_id": "explanation/messagepipe-events",
+    "title": "Explanation: The MessagePipe Event System",
+    "category": "explanation",
+    "heading": "What to avoid"
+  },
+  {
+    "chunk_id": "explanation/project-structure#0",
+    "doc_id": "explanation/project-structure",
+    "title": "Explanation: Project Structure",
+    "category": "explanation",
+    "heading": ""
+  },
+  {
+    "chunk_id": "explanation/project-structure#1",
+    "doc_id": "explanation/project-structure",
+    "title": "Explanation: Project Structure",
+    "category": "explanation",
+    "heading": "How developers use VGameKit"
+  },
+  {
+    "chunk_id": "explanation/project-structure#2",
+    "doc_id": "explanation/project-structure",
+    "title": "Explanation: Project Structure",
+    "category": "explanation",
+    "heading": "Repository layout (this repo only)"
+  },
+  {
+    "chunk_id": "explanation/project-structure#3",
+    "doc_id": "explanation/project-structure",
+    "title": "Explanation: Project Structure",
+    "category": "explanation",
+    "heading": "Package contents"
+  },
+  {
+    "chunk_id": "explanation/project-structure#4",
+    "doc_id": "explanation/project-structure",
+    "title": "Explanation: Project Structure",
+    "category": "explanation",
+    "heading": "What to avoid"
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#0",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": ""
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#1",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": "Why object pooling"
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#2",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": "BaseSpawnPool architecture"
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#3",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": "Spawn lifecycle"
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#4",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": "ISpawnItem contract"
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#5",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": "Lifetime and disposal"
+  },
+  {
+    "chunk_id": "explanation/spawner-pooling#6",
+    "doc_id": "explanation/spawner-pooling",
+    "title": "Explanation: Object Pooling and the Spawner System",
+    "category": "explanation",
+    "heading": "What to avoid"
+  },
+  {
+    "chunk_id": "explanation/vcontainer-di#0",
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "heading": ""
+  },
+  {
+    "chunk_id": "explanation/vcontainer-di#1",
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "heading": "Why VGameKit uses dependency injection"
+  },
+  {
+    "chunk_id": "explanation/vcontainer-di#2",
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "heading": "LifetimeScope hierarchy"
+  },
+  {
+    "chunk_id": "explanation/vcontainer-di#3",
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "heading": "IAsyncStartable vs IInitializable"
+  },
+  {
+    "chunk_id": "explanation/vcontainer-di#4",
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "heading": "Subscribable patterns"
+  },
+  {
+    "chunk_id": "explanation/vcontainer-di#5",
+    "doc_id": "explanation/vcontainer-di",
+    "title": "Explanation: VContainer and Dependency Injection in VGameKit",
+    "category": "explanation",
+    "heading": "What to avoid"
+  },
+  {
+    "chunk_id": "how-to/configure-logging#0",
+    "doc_id": "how-to/configure-logging",
+    "title": "How to Configure Logging",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/configure-logging#1",
+    "doc_id": "how-to/configure-logging",
+    "title": "How to Configure Logging",
+    "category": "how-to",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "how-to/configure-logging#2",
+    "doc_id": "how-to/configure-logging",
+    "title": "How to Configure Logging",
+    "category": "how-to",
+    "heading": "Step 2 — Set the log state"
+  },
+  {
+    "chunk_id": "how-to/configure-logging#3",
+    "doc_id": "how-to/configure-logging",
+    "title": "How to Configure Logging",
+    "category": "how-to",
+    "heading": "Step 4 — Add log calls in your code"
+  },
+  {
+    "chunk_id": "how-to/create-menu#0",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/create-menu#1",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "how-to/create-menu#2",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 1 — Define a menu name enum and events"
+  },
+  {
+    "chunk_id": "how-to/create-menu#3",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 2 — Create the View"
+  },
+  {
+    "chunk_id": "how-to/create-menu#4",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 3 — Define MenuData"
+  },
+  {
+    "chunk_id": "how-to/create-menu#5",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 4 — Create the Presenter"
+  },
+  {
+    "chunk_id": "how-to/create-menu#6",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 5 — Create the Manager"
+  },
+  {
+    "chunk_id": "how-to/create-menu#7",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 6 — Register in the LifetimeScope"
+  },
+  {
+    "chunk_id": "how-to/create-menu#8",
+    "doc_id": "how-to/create-menu",
+    "title": "How to Create a Menu",
+    "category": "how-to",
+    "heading": "Step 7 — Open a menu at runtime"
+  },
+  {
+    "chunk_id": "how-to/install-modules#0",
+    "doc_id": "how-to/install-modules",
+    "title": "How to Install VGameKit Modules",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/install-modules#1",
+    "doc_id": "how-to/install-modules",
+    "title": "How to Install VGameKit Modules",
+    "category": "how-to",
+    "heading": "Step 4 — Add VGameKit modules"
+  },
+  {
+    "chunk_id": "how-to/install-modules#2",
+    "doc_id": "how-to/install-modules",
+    "title": "How to Install VGameKit Modules",
+    "category": "how-to",
+    "heading": "Conditional compilation symbols"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#0",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#1",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#2",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Step 1 — Add the GoogleMobileAdsController to your scene"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#3",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Step 2 — Set up the AdsIds struct"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#4",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Step 3 — Register the controller in the LifetimeScope"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#5",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Step 4 — Initialise ads during app startup"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#6",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Step 5 — Request an ad"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#7",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Step 6 — React to ad events"
+  },
+  {
+    "chunk_id": "how-to/integrate-ads#8",
+    "doc_id": "how-to/integrate-ads",
+    "title": "How to Integrate Google Ads",
+    "category": "how-to",
+    "heading": "Ad event status quick reference"
+  },
+  {
+    "chunk_id": "how-to/integrate-analytics#0",
+    "doc_id": "how-to/integrate-analytics",
+    "title": "How to Integrate GameAnalytics",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/integrate-analytics#1",
+    "doc_id": "how-to/integrate-analytics",
+    "title": "How to Integrate GameAnalytics",
+    "category": "how-to",
+    "heading": "Step 1 — Configure the GameAnalytics asset"
+  },
+  {
+    "chunk_id": "how-to/integrate-analytics#2",
+    "doc_id": "how-to/integrate-analytics",
+    "title": "How to Integrate GameAnalytics",
+    "category": "how-to",
+    "heading": "Step 4 — Initialise during app startup"
+  },
+  {
+    "chunk_id": "how-to/manage-processflows#0",
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/manage-processflows#1",
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "heading": "Step 1 — Define flow arguments"
+  },
+  {
+    "chunk_id": "how-to/manage-processflows#2",
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "heading": "Step 2 — Implement the flow"
+  },
+  {
+    "chunk_id": "how-to/manage-processflows#3",
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "heading": "Step 3 — Register in the LifetimeScope"
+  },
+  {
+    "chunk_id": "how-to/manage-processflows#4",
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "heading": "Step 4 — Create and execute a flow"
+  },
+  {
+    "chunk_id": "how-to/manage-processflows#5",
+    "doc_id": "how-to/manage-processflows",
+    "title": "How to Manage Process Flows",
+    "category": "how-to",
+    "heading": "Step 5 — Chain flows"
+  },
+  {
+    "chunk_id": "how-to/use-spawner#0",
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "heading": ""
+  },
+  {
+    "chunk_id": "how-to/use-spawner#1",
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "heading": "Step 1 — Define the model"
+  },
+  {
+    "chunk_id": "how-to/use-spawner#2",
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "heading": "Step 2 — Create the spawn item"
+  },
+  {
+    "chunk_id": "how-to/use-spawner#3",
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "heading": "Step 4 — Register in the LifetimeScope"
+  },
+  {
+    "chunk_id": "how-to/use-spawner#4",
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "heading": "Step 5 — Create and use the pool at runtime"
+  },
+  {
+    "chunk_id": "how-to/use-spawner#5",
+    "doc_id": "how-to/use-spawner",
+    "title": "How to Use the Spawner",
+    "category": "how-to",
+    "heading": "Pool behaviour summary"
+  },
+  {
+    "chunk_id": "reference/api/app-manager#0",
+    "doc_id": "reference/api/app-manager",
+    "title": "AbsAppManager — App Manager Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/app-manager#1",
+    "doc_id": "reference/api/app-manager",
+    "title": "AbsAppManager — App Manager Reference",
+    "category": "reference",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "reference/api/app-manager#2",
+    "doc_id": "reference/api/app-manager",
+    "title": "AbsAppManager — App Manager Reference",
+    "category": "reference",
+    "heading": "Methods"
+  },
+  {
+    "chunk_id": "reference/api/configuration#0",
+    "doc_id": "reference/api/configuration",
+    "title": "GKConfig — Configuration Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/configuration#1",
+    "doc_id": "reference/api/configuration",
+    "title": "GKConfig — Configuration Reference",
+    "category": "reference",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "reference/api/configuration#2",
+    "doc_id": "reference/api/configuration",
+    "title": "GKConfig — Configuration Reference",
+    "category": "reference",
+    "heading": "Properties"
+  },
+  {
+    "chunk_id": "reference/api/configuration#3",
+    "doc_id": "reference/api/configuration",
+    "title": "GKConfig — Configuration Reference",
+    "category": "reference",
+    "heading": "Editor Methods"
+  },
+  {
+    "chunk_id": "reference/api/configuration#4",
+    "doc_id": "reference/api/configuration",
+    "title": "GKConfig — Configuration Reference",
+    "category": "reference",
+    "heading": "Setup"
+  },
+  {
+    "chunk_id": "reference/api/game-analytics#0",
+    "doc_id": "reference/api/game-analytics",
+    "title": "GameAnalytics Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/game-analytics#1",
+    "doc_id": "reference/api/game-analytics",
+    "title": "GameAnalytics Reference",
+    "category": "reference",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "reference/api/game-analytics#2",
+    "doc_id": "reference/api/game-analytics",
+    "title": "GameAnalytics Reference",
+    "category": "reference",
+    "heading": "Class: `GA_Initialization`"
+  },
+  {
+    "chunk_id": "reference/api/game-analytics#3",
+    "doc_id": "reference/api/game-analytics",
+    "title": "GameAnalytics Reference",
+    "category": "reference",
+    "heading": "Compile Symbol: `GA_ENABLED`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#0",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/google-ads#1",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#2",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Type Overview"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#3",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Enum: `AdsEventStatus`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#4",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `AdsEvent`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#5",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `AdsIds`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#6",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `AdsItemModel`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#7",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `AdsBaseView<T, TModel>`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#8",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `BannerAds`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#9",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `InterstitialAds`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#10",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `RewardedAds`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#11",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `GoogleMobileAdsConsentController`"
+  },
+  {
+    "chunk_id": "reference/api/google-ads#12",
+    "doc_id": "reference/api/google-ads",
+    "title": "Google Mobile Ads Reference",
+    "category": "reference",
+    "heading": "Class: `GoogleMobileAdsController`"
+  },
+  {
+    "chunk_id": "reference/api/jsonkit#0",
+    "doc_id": "reference/api/jsonkit",
+    "title": "JSonKit Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/jsonkit#1",
+    "doc_id": "reference/api/jsonkit",
+    "title": "JSonKit Reference",
+    "category": "reference",
+    "heading": "Methods"
+  },
+  {
+    "chunk_id": "reference/api/jsonkit#2",
+    "doc_id": "reference/api/jsonkit",
+    "title": "JSonKit Reference",
+    "category": "reference",
+    "heading": "Usage Pattern"
+  },
+  {
+    "chunk_id": "reference/api/lifetime-scopes#0",
+    "doc_id": "reference/api/lifetime-scopes",
+    "title": "Lifetime Scopes Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/lifetime-scopes#1",
+    "doc_id": "reference/api/lifetime-scopes",
+    "title": "Lifetime Scopes Reference",
+    "category": "reference",
+    "heading": "AbsBaseLifetimeScope"
+  },
+  {
+    "chunk_id": "reference/api/lifetime-scopes#2",
+    "doc_id": "reference/api/lifetime-scopes",
+    "title": "Lifetime Scopes Reference",
+    "category": "reference",
+    "heading": "AbsMainLifetimeScope"
+  },
+  {
+    "chunk_id": "reference/api/lifetime-scopes#3",
+    "doc_id": "reference/api/lifetime-scopes",
+    "title": "Lifetime Scopes Reference",
+    "category": "reference",
+    "heading": "Concrete Scope Patterns"
+  },
+  {
+    "chunk_id": "reference/api/logging#0",
+    "doc_id": "reference/api/logging",
+    "title": "GKLog — Logging Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/logging#1",
+    "doc_id": "reference/api/logging",
+    "title": "GKLog — Logging Reference",
+    "category": "reference",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "reference/api/logging#2",
+    "doc_id": "reference/api/logging",
+    "title": "GKLog — Logging Reference",
+    "category": "reference",
+    "heading": "LogState Enum"
+  },
+  {
+    "chunk_id": "reference/api/logging#3",
+    "doc_id": "reference/api/logging",
+    "title": "GKLog — Logging Reference",
+    "category": "reference",
+    "heading": "Static Class: `GKLog`"
+  },
+  {
+    "chunk_id": "reference/api/logging#4",
+    "doc_id": "reference/api/logging",
+    "title": "GKLog — Logging Reference",
+    "category": "reference",
+    "heading": "Enabling Logging"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#0",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/menu-system#1",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Overview"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#2",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Type Overview"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#3",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Interface: `IMenu`"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#4",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Class: `BaseMenuPresenter<TMenuName, TData, TMenu>`"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#5",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Class: `BaseMenuManager<TMenuName>`"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#6",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Events"
+  },
+  {
+    "chunk_id": "reference/api/menu-system#7",
+    "doc_id": "reference/api/menu-system",
+    "title": "Menu System Reference",
+    "category": "reference",
+    "heading": "Concrete Implementation Example"
+  },
+  {
+    "chunk_id": "reference/api/popup-system#0",
+    "doc_id": "reference/api/popup-system",
+    "title": "Popup System Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/popup-system#1",
+    "doc_id": "reference/api/popup-system",
+    "title": "Popup System Reference",
+    "category": "reference",
+    "heading": "Class: `BasePopupModel<TPopupName>`"
+  },
+  {
+    "chunk_id": "reference/api/popup-system#2",
+    "doc_id": "reference/api/popup-system",
+    "title": "Popup System Reference",
+    "category": "reference",
+    "heading": "Class: `BasePopup<TPopupName>`"
+  },
+  {
+    "chunk_id": "reference/api/popup-system#3",
+    "doc_id": "reference/api/popup-system",
+    "title": "Popup System Reference",
+    "category": "reference",
+    "heading": "Class: `BasePopupBuilder<TPopupName>`"
+  },
+  {
+    "chunk_id": "reference/api/popup-system#4",
+    "doc_id": "reference/api/popup-system",
+    "title": "Popup System Reference",
+    "category": "reference",
+    "heading": "Concrete Popup Example"
+  },
+  {
+    "chunk_id": "reference/api/processflows#0",
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/processflows#1",
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "heading": "Type Overview"
+  },
+  {
+    "chunk_id": "reference/api/processflows#2",
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "heading": "Interfaces"
+  },
+  {
+    "chunk_id": "reference/api/processflows#3",
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "heading": "Class: `BaseProcessFlow<TArgs>`"
+  },
+  {
+    "chunk_id": "reference/api/processflows#4",
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "heading": "Class: `ProcessFlowProvider`"
+  },
+  {
+    "chunk_id": "reference/api/processflows#5",
+    "doc_id": "reference/api/processflows",
+    "title": "ProcessFlows Reference",
+    "category": "reference",
+    "heading": "Concrete Flow Example"
+  },
+  {
+    "chunk_id": "reference/api/spawner#0",
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/spawner#1",
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "heading": "Type Overview"
+  },
+  {
+    "chunk_id": "reference/api/spawner#2",
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "heading": "Class: `BaseSpawnPool` *(non-generic)*"
+  },
+  {
+    "chunk_id": "reference/api/spawner#3",
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "heading": "Class: `BaseSpawnPool<TModel, TItem>`"
+  },
+  {
+    "chunk_id": "reference/api/spawner#4",
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "heading": "DI Extension: `SpawnerExtensions.RegisterObjectSpawner`"
+  },
+  {
+    "chunk_id": "reference/api/spawner#5",
+    "doc_id": "reference/api/spawner",
+    "title": "Spawner System Reference",
+    "category": "reference",
+    "heading": "Concrete Item Example"
+  },
+  {
+    "chunk_id": "reference/api/subscribable#0",
+    "doc_id": "reference/api/subscribable",
+    "title": "Subscribable System Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/subscribable#1",
+    "doc_id": "reference/api/subscribable",
+    "title": "Subscribable System Reference",
+    "category": "reference",
+    "heading": "Class: `SubscribableConcrete`"
+  },
+  {
+    "chunk_id": "reference/api/subscribable#2",
+    "doc_id": "reference/api/subscribable",
+    "title": "Subscribable System Reference",
+    "category": "reference",
+    "heading": "Class: `SubscribableMonoBehaviour`"
+  },
+  {
+    "chunk_id": "reference/api/subscribable#3",
+    "doc_id": "reference/api/subscribable",
+    "title": "Subscribable System Reference",
+    "category": "reference",
+    "heading": "Pattern: Implementing a Subscriber"
+  },
+  {
+    "chunk_id": "reference/api/utilities#0",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": ""
+  },
+  {
+    "chunk_id": "reference/api/utilities#1",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": "`MatrixId`"
+  },
+  {
+    "chunk_id": "reference/api/utilities#2",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": "`SerializableVector3` + `Vector3Extensions`"
+  },
+  {
+    "chunk_id": "reference/api/utilities#3",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": "`ListExtensions`"
+  },
+  {
+    "chunk_id": "reference/api/utilities#4",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": "`RandomExtensions`"
+  },
+  {
+    "chunk_id": "reference/api/utilities#5",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": "`HSBColor`"
+  },
+  {
+    "chunk_id": "reference/api/utilities#6",
+    "doc_id": "reference/api/utilities",
+    "title": "Utilities Reference",
+    "category": "reference",
+    "heading": "`OrthographicLayout` *(Camera)*"
+  },
+  {
+    "chunk_id": "tutorials/first-game#0",
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "heading": ""
+  },
+  {
+    "chunk_id": "tutorials/first-game#1",
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 1 — Define the menu enum and events"
+  },
+  {
+    "chunk_id": "tutorials/first-game#2",
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 4 — Create presenters"
+  },
+  {
+    "chunk_id": "tutorials/first-game#3",
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 5 — Create the menu manager"
+  },
+  {
+    "chunk_id": "tutorials/first-game#4",
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 7 — Register everything in the LifetimeScope"
+  },
+  {
+    "chunk_id": "tutorials/first-game#5",
+    "doc_id": "tutorials/first-game",
+    "title": "Tutorial: Building Your First Mini-Game with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 8 — Trigger the flow from the main menu"
+  },
+  {
+    "chunk_id": "tutorials/getting-started#0",
+    "doc_id": "tutorials/getting-started",
+    "title": "Tutorial: Getting Started with VGameKit",
+    "category": "tutorial",
+    "heading": ""
+  },
+  {
+    "chunk_id": "tutorials/getting-started#1",
+    "doc_id": "tutorials/getting-started",
+    "title": "Tutorial: Getting Started with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 1 — Create a new Unity project"
+  },
+  {
+    "chunk_id": "tutorials/getting-started#2",
+    "doc_id": "tutorials/getting-started",
+    "title": "Tutorial: Getting Started with VGameKit",
+    "category": "tutorial",
+    "heading": "Step 4 — Create the App Manager"
+  },
+  {
+    "chunk_id": "tutorials/processflows#0",
+    "doc_id": "tutorials/processflows",
+    "title": "Tutorial: Learning Process Flows",
+    "category": "tutorial",
+    "heading": ""
+  },
+  {
+    "chunk_id": "tutorials/processflows#1",
+    "doc_id": "tutorials/processflows",
+    "title": "Tutorial: Learning Process Flows",
+    "category": "tutorial",
+    "heading": "Step 1 — Create args classes"
+  },
+  {
+    "chunk_id": "tutorials/processflows#2",
+    "doc_id": "tutorials/processflows",
+    "title": "Tutorial: Learning Process Flows",
+    "category": "tutorial",
+    "heading": "Step 5 — Register flows in the LifetimeScope"
+  },
+  {
+    "chunk_id": "tutorials/processflows#3",
+    "doc_id": "tutorials/processflows",
+    "title": "Tutorial: Learning Process Flows",
+    "category": "tutorial",
+    "heading": "Step 6 — Chain and execute the flows"
+  },
+  {
+    "chunk_id": "tutorials/processflows#4",
+    "doc_id": "tutorials/processflows",
+    "title": "Tutorial: Learning Process Flows",
+    "category": "tutorial",
+    "heading": "Step 8 — Cancel mid-sequence"
+  },
+  {
+    "chunk_id": "tutorials/spawner-basics#0",
+    "doc_id": "tutorials/spawner-basics",
+    "title": "Tutorial: Spawner Basics",
+    "category": "tutorial",
+    "heading": ""
+  },
+  {
+    "chunk_id": "tutorials/spawner-basics#1",
+    "doc_id": "tutorials/spawner-basics",
+    "title": "Tutorial: Spawner Basics",
+    "category": "tutorial",
+    "heading": "Step 1 — Create the model"
+  },
+  {
+    "chunk_id": "tutorials/spawner-basics#2",
+    "doc_id": "tutorials/spawner-basics",
+    "title": "Tutorial: Spawner Basics",
+    "category": "tutorial",
+    "heading": "Step 2 — Create the pool item"
+  },
+  {
+    "chunk_id": "tutorials/spawner-basics#3",
+    "doc_id": "tutorials/spawner-basics",
+    "title": "Tutorial: Spawner Basics",
+    "category": "tutorial",
+    "heading": "Step 4 — Register in LifetimeScope"
+  },
+  {
+    "chunk_id": "tutorials/spawner-basics#4",
+    "doc_id": "tutorials/spawner-basics",
+    "title": "Tutorial: Spawner Basics",
+    "category": "tutorial",
+    "heading": "Step 5 — Spawn and recycle enemies"
+  },
+  {
+    "chunk_id": "tutorials/ui-system#0",
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "heading": ""
+  },
+  {
+    "chunk_id": "tutorials/ui-system#1",
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "heading": "Step 3 — Create presenters"
+  },
+  {
+    "chunk_id": "tutorials/ui-system#2",
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "heading": "Step 4 — Create the menu manager"
+  },
+  {
+    "chunk_id": "tutorials/ui-system#3",
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "heading": "Step 6 — Build and show the popup"
+  },
+  {
+    "chunk_id": "tutorials/ui-system#4",
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "heading": "Step 7 — Implement the popup view"
+  },
+  {
+    "chunk_id": "tutorials/ui-system#5",
+    "doc_id": "tutorials/ui-system",
+    "title": "Tutorial: Learning the UI System",
+    "category": "tutorial",
+    "heading": "Step 8 — Register in LifetimeScope"
+  },
+  {
+    "chunk_id": "home#0",
+    "doc_id": "home",
+    "title": "VGameKit",
+    "category": "home",
+    "heading": ""
+  },
+  {
+    "chunk_id": "home#1",
+    "doc_id": "home",
+    "title": "VGameKit",
+    "category": "home",
+    "heading": "How-to Guides"
+  },
+  {
+    "chunk_id": "home#2",
+    "doc_id": "home",
+    "title": "VGameKit",
+    "category": "home",
+    "heading": "Reference"
+  }
+]

@@ -276,8 +276,6 @@ public enum CustomConsentStatus
 }
 ```
 
-> **Bilinen sorun:** `GatherConsent`, `_initializeResult = CustomConsentStatus.None` atar sonra hemen `WaitUntil(() => _initializeResult == None)` bekler. Bu koşul girişte doğrudur, dolayısıyla asenkron UMP geri çağrısı tetiklenmeden bekleme anında çıkar. Doğru yüklem `!= None` olmalıdır.
-
 ### Test modu
 
 UMP hata ayıklama coğrafyasını (`EEA`) ve test cihaz kimliklerini etkinleştirmek için Scripting Define Symbols kısmına `GOOGLEADS_TESTDEVICE` ekleyin.
