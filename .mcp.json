@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "unity-api": {
+      "command": "uvx",
+      "args": ["unity-api-mcp"],
+      "env": {
+        "UNITY_VERSION": "6"
+      }
+    },
+    "vgamekit": {
+      "command": "uvx",
+      "args": ["vgamekit-mcp"]
+    }
+  }
+}

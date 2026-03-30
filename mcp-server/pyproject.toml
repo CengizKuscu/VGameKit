@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vgamekit-mcp"
+version = "0.1.1"
+description = "MCP server for VGameKit — searchable docs and tools for Unity game development"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["unity", "gamekit", "mcp", "documentation", "game-development"]
+dependencies = [
+    "mcp>=1.0.0",
+    "sentence-transformers>=3.0.0",
+    "numpy>=1.26.0",
+]
+
+[project.scripts]
+vgamekit-mcp = "vgamekit_mcp.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vgamekit_mcp"]
