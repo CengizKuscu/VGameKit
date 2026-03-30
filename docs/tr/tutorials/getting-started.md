@@ -22,7 +22,7 @@ VGameKit modüllerini **Package Manager > + > Add package from Git URL** aracıl
 ```json
 {
   "dependencies": {
-    "com.cngz.vgamekit": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit#v0.0.4"
+    "com.cngz.vgamekit": "https://github.com/CengizKuscu/VGameKit.git?path=Assets/VGameKit#v0.0.5"
   }
 }
 ```

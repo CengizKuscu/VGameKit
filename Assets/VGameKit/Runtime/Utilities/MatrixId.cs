@@ -76,8 +76,8 @@ namespace VGameKit.Runtime.Utilities
         public static bool operator !=(MatrixId matrixId1, MatrixId matrixId2)
         {
             return (matrixId1.RowId == matrixId2.RowId && matrixId1.ColId == matrixId2.ColId)
-                ? true
-                : false;
+                ? false
+                : true;
         }
     
         /// <summary>

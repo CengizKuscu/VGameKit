@@ -195,7 +195,6 @@ namespace VGameKit.GoogleAds.Runtime
                 AdsItem.OnAdFullScreenContentClosed -= HandleOnAdFullScreenContentClosed;
                 AdsItem.OnAdFullScreenContentOpened -= HandleOnAdFullScreenContentOpened;
                 AdsItem.OnAdFullScreenContentFailed -= HandleOnAdFullScreenContentFailed;
-                onRewardedReadyStatusChanged = null;
             }
         }
 
@@ -224,9 +223,9 @@ namespace VGameKit.GoogleAds.Runtime
             {
                 GameAnalytics.NewDesignEvent($"RewardedAd:Showed:{_currentAdsEvent.From}");
             }
+#endif
 
             onResponseAdEvent?.Invoke(_currentAdsEvent, AdsEventStatus.ResponseOpened);
-#endif
         }
 
         /// <summary>
